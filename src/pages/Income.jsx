@@ -8,6 +8,7 @@ import IncomeList from "../components/IncomeList.jsx";
 import Modal from "../components/Modal.jsx";
 import {Plus} from "lucide-react";
 import AddIncomeForm from "../components/AddIncomeForm.jsx";
+import DeleteAlert from "../components/DeleteAlert.jsx";
 
 const Income = () => {
     useUser();
@@ -49,7 +50,7 @@ const Income = () => {
                 console.log('Income categories', response.data);
                 setCategories(response.data);
             }
-        }catch (error) {
+        } catch (error) {
             console.error('Failed to fetch income categories details', error);
             toast.error(error.response?.data?.message || "Failed to fetch income categories details");
         }
@@ -60,32 +61,32 @@ const Income = () => {
         const {name, amount, date, icon, categoryId} = income;
 
         // Validation
-        if(!name.trim()) {
+        if (!name.trim()) {
             toast.error("Please enter a valid name");
             return;
         }
 
-        if(!amount || isNaN(amount) || Number(amount) <= 0) {
+        if (!amount || isNaN(amount) || Number(amount) <= 0) {
             toast.error("Amount should be a valid number greater than 0");
             return;
         }
 
-        if(!date) {
+        if (!date) {
             toast.error("Please select a date");
             return;
         }
 
         const today = new Date().toISOString().split("T")[0];
-        if(date > today) {
+        if (date > today) {
             toast.error("Date cannot be in the future");
             return;
         }
 
-        if(!categoryId) {
+        if (!categoryId) {
             toast.error("Please select a category");
             return;
         }
-        
+
         try {
             const response = await axiosConfig.post(API_ENDPOINTS.ADD_INCOME, {
                 name,
@@ -104,6 +105,19 @@ const Income = () => {
         } catch (error) {
             console.log("Error adding income", error);
             toast.error(error.response?.data?.message || "Failed to adding income");
+        }
+    }
+
+    //delete income details
+    const deleteIncome = async (id) => {
+        try {
+            await axiosConfig.delete(API_ENDPOINTS.DELETE_INCOME(id));
+            setOpenDeleteAlert({show: false, data: null});
+            toast.success("Income deleted successfully");
+            fetchIncomeDetails();
+        } catch (error) {
+            console.log('Error deleting income', error);
+            toast.error(error.response?.data?.message || "Failed to delete income");
         }
     }
 
@@ -156,7 +170,10 @@ const Income = () => {
                         onClose={() => setOpenDeleteAlert({show: false, data: null})}
                         title="Delete Income"
                     >
-                        Delete confirmation
+                        <DeleteAlert
+                            content="Delete income? This action cannot be undone."
+                            onDelete={() => deleteIncome(openDeleteAlert.data)}
+                        />
                     </Modal>
 
                 </div>
