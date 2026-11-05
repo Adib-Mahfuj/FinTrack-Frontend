@@ -1,6 +1,7 @@
 import {useEffect,useState} from "react";
 import EmojiPickerPopup from "./EmojiPickerPopup.jsx";
 import Input from "./input.jsx";
+import {LoaderCircle} from "lucide-react";
 
 const AddIncomeForm = ({onAddIncome, categories}) => {
     const [income, setIncome] = useState({
@@ -10,6 +11,8 @@ const AddIncomeForm = ({onAddIncome, categories}) => {
         icon: '',
         categoryId: '',
     });
+
+    const [loading, setLoading] = useState(false);
 
     const categoryOptions = categories.map(category => ({
         value: category.id,
@@ -25,6 +28,18 @@ const AddIncomeForm = ({onAddIncome, categories}) => {
 
     const handleChange = (key, value) => {
         setIncome({...income, [key]: value});
+    }
+
+    const handleAddIncome = async () => {
+        setLoading(true);
+        try{
+            await onAddIncome({
+                ...income,
+                categoryId: selectedCategoryId
+            });
+        }finally {
+            setLoading(false);
+        }
     }
 
     return (
@@ -68,10 +83,8 @@ const AddIncomeForm = ({onAddIncome, categories}) => {
 
             <div className="flex justify-end mt-6">
                 <button
-                    onClick={() => onAddIncome({
-                        ...income,
-                        categoryId: selectedCategoryId
-                    })}
+                    onClick={handleAddIncome}
+                    disabled={loading}
                     className="flex items-center gap-2 px-5 py-2.5
                                bg-blue-600 text-white
                                text-sm font-medium rounded-lg
@@ -80,7 +93,16 @@ const AddIncomeForm = ({onAddIncome, categories}) => {
                                active:scale-[0.98]
                                focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
                                transition-all duration-200">
-                    Add Income
+                    {loading ? (
+                        <>
+                            <LoaderCircle className="w-4 h-4 animate-spin" />
+                            Adding...
+                        </>
+                    ): (
+                        <>
+                            Add Income
+                        </>
+                    )}
                 </button>
             </div>
         </div>

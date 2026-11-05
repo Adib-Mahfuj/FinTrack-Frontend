@@ -135,7 +135,7 @@ const Income = () => {
 
                     <IncomeList
                         transactions={incomeData}
-                        onDelete={(id) =>console.log('Deleting the income',id)}
+                        onDelete={(id) => setOpenDeleteAlert({show: true, data: id})}
                     />
 
                     {/* Add Income Modal*/}
@@ -149,6 +149,16 @@ const Income = () => {
                             categories={categories}
                         />
                     </Modal>
+
+                    {/* Delete Income Modal */}
+                    <Modal
+                        isOpen={openDeleteAlert.show}
+                        onClose={() => setOpenDeleteAlert({show: false, data: null})}
+                        title="Delete Income"
+                    >
+                        Delete confirmation
+                    </Modal>
+
                 </div>
             </div>
         </Dashboard>
