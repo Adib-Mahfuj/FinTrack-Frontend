@@ -9,6 +9,7 @@ import Modal from "../components/Modal.jsx";
 import {Plus} from "lucide-react";
 import AddIncomeForm from "../components/AddIncomeForm.jsx";
 import DeleteAlert from "../components/DeleteAlert.jsx";
+import IncomeOverview from "../components/IncomeOverview.jsx";
 
 const Income = () => {
     useUser();
@@ -130,23 +131,15 @@ const Income = () => {
         <Dashboard activeMenu="Income">
             <div className="my-5 mx-auto">
                 <div className="grid grid-cols-1 gap-6">
-                    <div className="flex justify-end">
+                    <div>
                         {/* overview for income with line chart */}
-                        <button
-                            onClick={() => setOpenAddIncomeModal(true)}
-                            className="group flex items-center gap-2 px-4 py-2.5
-                                       border-2 border-blue-600 text-blue-600
-                                       text-sm font-medium rounded-lg
-                                       hover:bg-blue-600 hover:text-white
-                                       hover:shadow-md hover:-translate-y-0.5
-                                       active:scale-95
-                                       focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-                                       transition-all duration-200">
-                            <Plus size={18} strokeWidth={2.5}/>
-                            Add Income
-                        </button>
+                        <IncomeOverview
+                            transactions={incomeData}
+                            onAddIncome={() => setOpenAddIncomeModal(true)}
+                        />
                     </div>
 
+                    {/* Income Sources */}
                     <IncomeList
                         transactions={incomeData}
                         onDelete={(id) => setOpenDeleteAlert({show: true, data: id})}
