@@ -129,7 +129,6 @@ const Income = () => {
                 API_ENDPOINTS.INCOME_EXCEL_DOWNLOAD,
                 {responseType: "blob"}
             );
-
             const filename = "income_details.xlsx";
             const url = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement("a");
@@ -146,9 +145,19 @@ const Income = () => {
         }
     };
 
-    const handleEmailIncomeDetails = () => {
-        console.log("Email income details");
-    }
+    // Emails the current month's income list as an Excel file to the logged-in user
+    const handleEmailIncomeDetails = async () => {
+        try {
+            const response = await axiosConfig.get(API_ENDPOINTS.EMAIL_INCOME);
+
+            if (response.status === 200) {
+                toast.success("Income details emailed successfully");
+            }
+        } catch (error) {
+            console.error("Error emailing income details:", error);
+            toast.error(error.response?.data?.message || "Failed to email income details");
+        }
+    };
 
     useEffect(() => {
         fetchIncomeDetails();
