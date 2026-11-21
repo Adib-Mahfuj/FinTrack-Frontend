@@ -8,6 +8,9 @@ export const addThousandsSeparator = (num) => {
     return Number(num).toLocaleString("en-IN");
 };
 
+export const prepareExpenseLineChartData = (transactions = []) =>
+    prepareIncomeLineChartData(transactions);
+
 export const prepareIncomeLineChartData = (transactions = []) => {
     const grouped = {};
 
@@ -15,12 +18,13 @@ export const prepareIncomeLineChartData = (transactions = []) => {
         const key = moment(t.date).format("YYYY-MM-DD");
 
         if (!grouped[key]) {
-            grouped[key] = { date: key, totalAmount: 0, items: [] };
+            grouped[key] = {date: key, totalAmount: 0, items: []};
         }
 
         grouped[key].totalAmount += Number(t.amount);
-        grouped[key].items.push({ name: t.name, amount: Number(t.amount) });
+        grouped[key].items.push({name: t.name, amount: Number(t.amount)});
     });
+
 
     return Object.values(grouped)
         .sort((a, b) => a.date.localeCompare(b.date))

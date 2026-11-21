@@ -9,7 +9,7 @@ import {
 } from "recharts";
 
 // Hover korle je box ta ashe
-const CustomTooltip = ({ active, payload }) => {
+const CustomTooltip = ({ active, payload, color }) => {
     if (!active || !payload || !payload.length) return null;
 
     const point = payload[0].payload; // oi point er full data (month, totalAmount, items)
@@ -22,7 +22,7 @@ const CustomTooltip = ({ active, payload }) => {
 
             <p className="text-sm font-semibold text-slate-800 py-1 border-b border-slate-100">
                 Total:{" "}
-                <span className="text-purple-700">
+                <span style={{ color }}>
                     BDT {point.totalAmount.toLocaleString()}
                 </span>
             </p>
@@ -40,11 +40,16 @@ const CustomTooltip = ({ active, payload }) => {
     );
 };
 
-const CustomLineChart = ({ data }) => {
+const CustomLineChart = ({
+                             data,
+                             emptyText = "No income data to show yet",
+                             color = "#7c3aed",
+                             gradientId = "incomeGradient",
+                         }) => {
     if (!data || data.length === 0) {
         return (
             <div className="h-[300px] flex items-center justify-center text-sm text-slate-400">
-                No income data to show yet
+                {emptyText}
             </div>
         );
     }
@@ -53,11 +58,10 @@ const CustomLineChart = ({ data }) => {
         <div className="w-full h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={data} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
-                    {/* Niche fade hoye jawa purple gradient */}
                     <defs>
-                        <linearGradient id="incomeGradient" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#7c3aed" stopOpacity={0.35} />
-                            <stop offset="95%" stopColor="#7c3aed" stopOpacity={0} />
+                        <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor={color} stopOpacity={0.35} />
+                            <stop offset="95%" stopColor={color} stopOpacity={0} />
                         </linearGradient>
                     </defs>
 
@@ -73,15 +77,15 @@ const CustomLineChart = ({ data }) => {
                         stroke="none"
                     />
 
-                    <Tooltip content={<CustomTooltip />} />
+                    <Tooltip content={<CustomTooltip color={color} />} />
 
                     <Area
-                        type="monotone"            // smooth curve
-                        dataKey="totalAmount"      // data er kon field chart e jabe
-                        stroke="#7c3aed"
+                        type="monotone"
+                        dataKey="totalAmount"
+                        stroke={color}
                         strokeWidth={3}
-                        fill="url(#incomeGradient)"
-                        dot={{ r: 4, fill: "#7c3aed" }}
+                        fill={`url(#${gradientId})`}
+                        dot={{ r: 4, fill: color }}
                     />
                 </AreaChart>
             </ResponsiveContainer>
