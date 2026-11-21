@@ -1,8 +1,9 @@
 import Dashboard from "../components/Dashboard.jsx";
-import { useUser } from "../hooks/useUser.jsx";
-import { useEffect, useState } from "react";
+import {useUser} from "../hooks/useUser.jsx";
+import {useEffect, useState} from "react";
 import axiosConfig from "../util/axiosConfig.jsx";
-import { API_ENDPOINTS } from "../util/apiEndpoints.js";
+import {API_ENDPOINTS} from "../util/apiEndpoints.js";
+import {getLocalDateString} from "../util/dateUtil.js";
 import toast from "react-hot-toast";
 import ExpenseList from "../components/ExpenseList.jsx";
 import Modal from "../components/Modal.jsx";
@@ -22,7 +23,9 @@ const Expense = () => {
         data: null,
     });
 
-    // Fetch expense details from the API
+    const closeDeleteAlert = () => setOpenDeleteAlert({show: false, data: null});
+
+    // Fetch the current month's expenses
     const fetchExpenseDetails = async () => {
         if (loading) return;
 
@@ -41,7 +44,7 @@ const Expense = () => {
         }
     };
 
-    // Fetch categories for expense
+    // Fetch expense categories for the add form
     const fetchExpenseCategories = async () => {
         try {
             const response = await axiosConfig.get(API_ENDPOINTS.CATEGORY_BY_TYPE("expense"));
@@ -54,11 +57,10 @@ const Expense = () => {
         }
     };
 
-    // Save the expense details
+    // Validate and save a new expense
     const handleAddExpense = async (expense) => {
-        const { name, amount, date, icon, categoryId } = expense;
+        const {name, amount, date, icon, categoryId} = expense;
 
-        // Validation
         if (!name.trim()) {
             toast.error("Please enter a valid name");
             return;
@@ -74,8 +76,8 @@ const Expense = () => {
             return;
         }
 
-        const today = new Date().toISOString().split("T")[0];
-        if (date > today) {
+        // Compare against the local date, not UTC
+        if (date > getLocalDateString()) {
             toast.error("Date cannot be in the future");
             return;
         }
@@ -87,7 +89,7 @@ const Expense = () => {
 
         try {
             const response = await axiosConfig.post(API_ENDPOINTS.ADD_EXPENSE, {
-                name,
+                name: name.trim(),
                 amount: Number(amount),
                 date,
                 icon,
@@ -106,11 +108,11 @@ const Expense = () => {
         }
     };
 
-    // Delete expense details
+    // Delete an expense by id
     const deleteExpense = async (id) => {
         try {
             await axiosConfig.delete(API_ENDPOINTS.DELETE_EXPENSE(id));
-            setOpenDeleteAlert({ show: false, data: null });
+            closeDeleteAlert();
             toast.success("Expense deleted successfully");
             fetchExpenseDetails();
         } catch (error) {
@@ -119,12 +121,12 @@ const Expense = () => {
         }
     };
 
-    // Downloads the current month's expense list as an Excel (.xlsx) file
+    // Download the current month's expenses as an Excel (.xlsx) file
     const handleDownloadExpenseDetails = async () => {
         try {
             const response = await axiosConfig.get(
                 API_ENDPOINTS.EXPENSE_EXCEL_DOWNLOAD,
-                { responseType: "blob" }
+                {responseType: "blob"}
             );
             const filename = "expense_details.xlsx";
             const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -142,7 +144,7 @@ const Expense = () => {
         }
     };
 
-    // Emails the current month's expense list as an Excel file to the logged-in user
+    // Email the current month's expenses as an Excel file to the logged-in user
     const handleEmailExpenseDetails = async () => {
         try {
             const response = await axiosConfig.get(API_ENDPOINTS.EMAIL_EXPENSE);
@@ -166,7 +168,7 @@ const Expense = () => {
             <div className="my-5 mx-auto">
                 <div className="grid grid-cols-1 gap-6">
                     <div>
-                        {/* overview for expense with line chart */}
+                        {/* Overview with line chart */}
                         <ExpenseOverview
                             transactions={expenseData}
                             onAddExpense={() => setOpenAddExpenseModal(true)}
@@ -176,12 +178,12 @@ const Expense = () => {
                     {/* Expense list */}
                     <ExpenseList
                         transactions={expenseData}
-                        onDelete={(id) => setOpenDeleteAlert({ show: true, data: id })}
+                        onDelete={(id) => setOpenDeleteAlert({show: true, data: id})}
                         onDownload={handleDownloadExpenseDetails}
                         onEmail={handleEmailExpenseDetails}
                     />
 
-                    {/* Add Expense Modal */}
+                    {/* Add expense modal */}
                     <Modal
                         isOpen={openAddExpenseModal}
                         onClose={() => setOpenAddExpenseModal(false)}
@@ -193,15 +195,16 @@ const Expense = () => {
                         />
                     </Modal>
 
-                    {/* Delete Expense Modal */}
+                    {/* Delete expense modal */}
                     <Modal
                         isOpen={openDeleteAlert.show}
-                        onClose={() => setOpenDeleteAlert({ show: false, data: null })}
+                        onClose={closeDeleteAlert}
                         title="Delete Expense"
                     >
                         <DeleteAlert
                             content="Delete expense? This action cannot be undone."
                             onDelete={() => deleteExpense(openDeleteAlert.data)}
+                            onCancel={closeDeleteAlert}
                         />
                     </Modal>
                 </div>

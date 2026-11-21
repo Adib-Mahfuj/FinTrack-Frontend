@@ -22,9 +22,15 @@ const TransactionInfoCard = ({icon, title, date, amount, type, hideDeleteBtn, on
                 <div className="flex items-center gap-2">
                     {!hideDeleteBtn && (
                         <button
+                            type="button"
                             onClick={onDelete}
-                            className="text-gray-400 hover:text-red-800 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                            <Trash2 size={18}/>
+                            aria-label={`Delete ${title}`}
+                            className="p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50
+                                       focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500
+                                       opacity-0 group-hover:opacity-100 focus-visible:opacity-100
+                                       [@media(hover:none)]:opacity-100
+                                       transition-all duration-200 cursor-pointer">
+                            <Trash2 size={16}/>
                         </button>
                     )}
 

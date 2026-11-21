@@ -3,10 +3,10 @@ import {useUser} from "../hooks/useUser.jsx";
 import {useEffect, useState} from "react";
 import axiosConfig from "../util/axiosConfig.jsx";
 import {API_ENDPOINTS} from "../util/apiEndpoints.js";
+import {getLocalDateString} from "../util/dateUtil.js";
 import toast from "react-hot-toast";
 import IncomeList from "../components/IncomeList.jsx";
 import Modal from "../components/Modal.jsx";
-import {Plus} from "lucide-react";
 import AddIncomeForm from "../components/AddIncomeForm.jsx";
 import DeleteAlert from "../components/DeleteAlert.jsx";
 import IncomeOverview from "../components/IncomeOverview.jsx";
@@ -23,7 +23,9 @@ const Income = () => {
         data: null,
     });
 
-    // Fetch income details from the API
+    const closeDeleteAlert = () => setOpenDeleteAlert({show: false, data: null});
+
+    // Fetch the current month's incomes
     const fetchIncomeDetails = async () => {
         if (loading) return;
 
@@ -31,7 +33,6 @@ const Income = () => {
 
         try {
             const response = await axiosConfig.get(API_ENDPOINTS.GET_ALL_INCOMES);
-            console.log('API response:', response.data);
             if (response.status === 200) {
                 setIncomeData(response.data);
             }
@@ -43,12 +44,11 @@ const Income = () => {
         }
     }
 
-    //Fetch categories for income
+    // Fetch income categories for the add form
     const fetchIncomeCategories = async () => {
         try {
             const response = await axiosConfig.get(API_ENDPOINTS.CATEGORY_BY_TYPE("income"));
             if (response.status === 200) {
-                console.log('Income categories', response.data);
                 setCategories(response.data);
             }
         } catch (error) {
@@ -57,11 +57,10 @@ const Income = () => {
         }
     }
 
-    // Save the income details
+    // Validate and save a new income
     const handleAddIncome = async (income) => {
         const {name, amount, date, icon, categoryId} = income;
 
-        // Validation
         if (!name.trim()) {
             toast.error("Please enter a valid name");
             return;
@@ -77,8 +76,8 @@ const Income = () => {
             return;
         }
 
-        const today = new Date().toISOString().split("T")[0];
-        if (date > today) {
+        // Compare against the local date, not UTC
+        if (date > getLocalDateString()) {
             toast.error("Date cannot be in the future");
             return;
         }
@@ -90,7 +89,7 @@ const Income = () => {
 
         try {
             const response = await axiosConfig.post(API_ENDPOINTS.ADD_INCOME, {
-                name,
+                name: name.trim(),
                 amount: Number(amount),
                 date,
                 icon,
@@ -109,11 +108,11 @@ const Income = () => {
         }
     }
 
-    //delete income details
+    // Delete an income by id
     const deleteIncome = async (id) => {
         try {
             await axiosConfig.delete(API_ENDPOINTS.DELETE_INCOME(id));
-            setOpenDeleteAlert({show: false, data: null});
+            closeDeleteAlert();
             toast.success("Income deleted successfully");
             fetchIncomeDetails();
         } catch (error) {
@@ -122,7 +121,7 @@ const Income = () => {
         }
     }
 
-    // Downloads the current month's income list as an Excel (.xlsx) file
+    // Download the current month's incomes as an Excel (.xlsx) file
     const handleDownloadIncomeDetails = async () => {
         try {
             const response = await axiosConfig.get(
@@ -145,7 +144,7 @@ const Income = () => {
         }
     };
 
-    // Emails the current month's income list as an Excel file to the logged-in user
+    // Email the current month's incomes as an Excel file to the logged-in user
     const handleEmailIncomeDetails = async () => {
         try {
             const response = await axiosConfig.get(API_ENDPOINTS.EMAIL_INCOME);
@@ -169,14 +168,14 @@ const Income = () => {
             <div className="my-5 mx-auto">
                 <div className="grid grid-cols-1 gap-6">
                     <div>
-                        {/* overview for income with line chart */}
+                        {/* Overview with line chart */}
                         <IncomeOverview
                             transactions={incomeData}
                             onAddIncome={() => setOpenAddIncomeModal(true)}
                         />
                     </div>
 
-                    {/* Income Sources */}
+                    {/* Income sources */}
                     <IncomeList
                         transactions={incomeData}
                         onDelete={(id) => setOpenDeleteAlert({show: true, data: id})}
@@ -184,7 +183,7 @@ const Income = () => {
                         onEmail={handleEmailIncomeDetails}
                     />
 
-                    {/* Add Income Modal*/}
+                    {/* Add income modal */}
                     <Modal
                         isOpen={openAddIncomeModal}
                         onClose={() => setOpenAddIncomeModal(false)}
@@ -196,15 +195,16 @@ const Income = () => {
                         />
                     </Modal>
 
-                    {/* Delete Income Modal */}
+                    {/* Delete income modal */}
                     <Modal
                         isOpen={openDeleteAlert.show}
-                        onClose={() => setOpenDeleteAlert({show: false, data: null})}
+                        onClose={closeDeleteAlert}
                         title="Delete Income"
                     >
                         <DeleteAlert
                             content="Delete income? This action cannot be undone."
                             onDelete={() => deleteIncome(openDeleteAlert.data)}
+                            onCancel={closeDeleteAlert}
                         />
                     </Modal>
 
