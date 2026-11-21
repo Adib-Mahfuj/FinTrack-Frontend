@@ -20,5 +20,6 @@ export const API_ENDPOINTS = {
     EXPENSE_EXCEL_DOWNLOAD: "excel/download/expense",
     EMAIL_INCOME: "/email/income-excel",
     EMAIL_EXPENSE: "/email/expense-excel",
+    APPLY_FILTERS: "/filter",
     UPLOAD_IMAGE : `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`
 }

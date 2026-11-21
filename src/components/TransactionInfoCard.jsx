@@ -2,7 +2,6 @@ import {Trash2, TrendingDown, TrendingUp, UtensilsCrossed} from "lucide-react";
 import {addThousandsSeparator} from "../util/util.js";
 
 const TransactionInfoCard = ({icon, title, date, amount, type, hideDeleteBtn, onDelete}) => {
-    console.log('icon value:', icon);
     const getAmountStyles = () => type === 'income'? 'bg-green-50 text-green-800': 'bg-red-50 text-red-800';
     return (
         <div className="group relative flex items-center gap-4 mt-2 p-3 rounded-lg hover:bg-blue-50 transition-colors duration-200">
@@ -40,7 +39,6 @@ const TransactionInfoCard = ({icon, title, date, amount, type, hideDeleteBtn, on
                         ) : (
                             <TrendingDown size={15}/>
                         )}
-
                     </div>
                 </div>
             </div>
