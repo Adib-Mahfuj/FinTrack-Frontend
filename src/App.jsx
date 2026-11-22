@@ -11,6 +11,7 @@ const Income = lazy(() => import("./pages/Income.jsx"));
 const Expense = lazy(() => import("./pages/Expense.jsx"));
 const Category = lazy(() => import("./pages/Category.jsx"));
 const Filter = lazy(() => import("./pages/Filter.jsx"));
+const Profile = lazy(() => import("./pages/Profile.jsx"));
 const Login = lazy(() => import("./pages/Login.jsx"));
 const Signup = lazy(() => import("./pages/Signup.jsx"));
 
@@ -66,6 +67,7 @@ const App = () => {
                             <Route path="/expense" element={<Expense/>}/>
                             <Route path="/category" element={<Category/>}/>
                             <Route path="/filter" element={<Filter/>}/>
+                            <Route path="/profile" element={<Profile/>}/>
                             <Route path="/login" element={<Login/>}/>
                             <Route path="/signup" element={<Signup/>}/>
                             {/* Unknown URLs go back to the root redirect */}

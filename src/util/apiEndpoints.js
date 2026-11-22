@@ -15,6 +15,8 @@ export const API_ENDPOINTS = {
     LOGIN: "login",
     REGISTER: "register",
     GET_USER_INFO: "/profile",
+    UPDATE_PROFILE: "/profile",
+    CHANGE_PASSWORD: "/profile/password",
     GET_ALL_CATEGORIES: "/categories",
     ADD_CATEGORY: "/categories",
     UPDATE_CATEGORY: (categoryId) => `/categories/${categoryId}`,

@@ -1,5 +1,5 @@
 import {useContext, useEffect, useRef, useState} from "react";
-import {useNavigate} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import {LogOut, Menu, User, X} from "lucide-react";
 import {AppContext} from "../context/AppContext.jsx";
 import {assets} from "../assets/assests.js";
@@ -7,6 +7,17 @@ import Sidebar from "./Sidebar.jsx";
 
 // Matches Tailwind's `lg` breakpoint, where the desktop sidebar takes over
 const DESKTOP_QUERY = "(min-width: 1024px)";
+
+// Profile photo with a user-icon fallback
+const Avatar = ({url, className, iconSize}) => (
+    <span className={`flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-blue-600 ${className}`}>
+        {url ? (
+            <img src={url} alt="" className="h-full w-full object-cover"/>
+        ) : (
+            <User className="text-white" size={iconSize} strokeWidth={2}/>
+        )}
+    </span>
+);
 
 const Menubar = ({activeMenu}) => {
     const [openSideMenu, setOpenSideMenu] = useState(false);
@@ -102,9 +113,9 @@ const Menubar = ({activeMenu}) => {
                         onClick={() => setShowDropdown((open) => !open)}
                         aria-label="Open user menu"
                         aria-expanded={showDropdown}
-                        className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 shadow-sm transition-colors duration-200 hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                        className="rounded-full shadow-sm transition-opacity duration-200 hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                     >
-                        <User className="text-white" size={20} strokeWidth={2}/>
+                        <Avatar url={user?.profileImageUrl} className="h-10 w-10" iconSize={20}/>
                     </button>
 
                     {showDropdown && (
@@ -112,9 +123,7 @@ const Menubar = ({activeMenu}) => {
                             {/* User information */}
                             <div className="border-b border-gray-100 bg-blue-50 px-4 py-4">
                                 <div className="flex items-center gap-3">
-                                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-600">
-                                        <User className="text-white" size={23} strokeWidth={2}/>
-                                    </div>
+                                    <Avatar url={user?.profileImageUrl} className="h-12 w-12" iconSize={23}/>
                                     <div className="min-w-0 flex-1">
                                         <p className="truncate text-sm font-semibold text-gray-900">
                                             {user?.fullName || "User"}
@@ -125,7 +134,20 @@ const Menubar = ({activeMenu}) => {
                             </div>
 
                             {/* Actions */}
-                            <div className="p-1.5">
+                            <div className="space-y-0.5 p-1.5">
+                                <Link
+                                    to="/profile"
+                                    onClick={() => setShowDropdown(false)}
+                                    className="group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-gray-700 transition-colors duration-200 hover:bg-blue-50 hover:text-blue-700 focus:bg-blue-50 focus:outline-none"
+                                >
+                                    <User
+                                        size={19}
+                                        strokeWidth={2}
+                                        className="text-gray-400 transition-colors duration-200 group-hover:text-blue-600"
+                                    />
+                                    <span className="text-sm font-medium">Profile</span>
+                                </Link>
+
                                 <button
                                     type="button"
                                     onClick={handleLogout}
