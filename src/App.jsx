@@ -5,6 +5,7 @@ import {Toaster} from "react-hot-toast";
 import ErrorBoundary from "./components/ErrorBoundary.jsx";
 
 // Pages are code-split so the heavy chart library only loads when needed
+const Landing = lazy(() => import("./pages/Landing.jsx"));
 const Home = lazy(() => import("./pages/Home.jsx"));
 const Income = lazy(() => import("./pages/Income.jsx"));
 const Expense = lazy(() => import("./pages/Expense.jsx"));
@@ -19,25 +20,23 @@ const PageLoader = () => (
     </div>
 );
 
-// Resets the scroll position on every route change
+// Resets the scroll position on every route change, except for in-page anchors on the landing page
 const ScrollToTop = () => {
-    const {pathname} = useLocation();
+    const {pathname, hash} = useLocation();
 
     useEffect(() => {
-        window.scrollTo(0, 0);
-    }, [pathname]);
+        if (!hash) window.scrollTo(0, 0);
+    }, [pathname, hash]);
 
     return null;
 };
 
+// "/" shows the landing page to visitors and sends signed-in users to the dashboard
 const Root = () => {
-    const isAuthenticated = !!localStorage.getItem("token");
-    return isAuthenticated ? (
-        <Navigate to="/dashboard"/>
-    ) : (
-        <Navigate to="/login"/>
-    );
-}
+    const isAuthenticated = Boolean(localStorage.getItem("token"));
+
+    return isAuthenticated ? <Navigate to="/dashboard" replace/> : <Landing/>;
+};
 
 const App = () => {
     return (

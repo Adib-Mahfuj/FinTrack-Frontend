@@ -8,12 +8,14 @@ const VARIANTS = {
 };
 
 const SIZES = {
-    md: "px-4 py-2.5 text-sm",
     sm: "px-3 py-1.5 text-sm",
+    md: "px-4 py-2.5 text-sm",
+    lg: "px-5 py-3 text-base",
 };
 
-// Shared button; variants keep the primary/secondary hierarchy consistent across pages
+// Shared button; `as` lets it render a router <Link> with the same look
 const Button = ({
+                    as: Component = "button",
                     variant = "primary",
                     size = "md",
                     icon: Icon,
@@ -24,20 +26,24 @@ const Button = ({
                     type = "button",
                     children,
                     ...rest
-                }) => (
-    <button
-        type={type}
-        disabled={disabled || loading}
-        className={`inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg font-medium
-                    transition-colors duration-200 cursor-pointer focus:outline-none
-                    focus-visible:ring-2 focus-visible:ring-offset-2
-                    disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none
-                    ${VARIANTS[variant]} ${SIZES[size]} ${className}`}
-        {...rest}
-    >
-        {loading ? <LoaderCircle className="h-4 w-4 animate-spin"/> : Icon && <Icon size={16}/>}
-        {loading && loadingText ? loadingText : children}
-    </button>
-);
+                }) => {
+    // Native button attributes only apply when rendering a real <button>
+    const nativeProps = Component === "button" ? {type, disabled: disabled || loading} : {};
+
+    return (
+        <Component
+            {...nativeProps}
+            className={`inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg font-medium
+                        transition-colors duration-200 cursor-pointer focus:outline-none
+                        focus-visible:ring-2 focus-visible:ring-offset-2
+                        disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none
+                        ${VARIANTS[variant]} ${SIZES[size]} ${className}`}
+            {...rest}
+        >
+            {loading ? <LoaderCircle className="h-4 w-4 animate-spin"/> : Icon && <Icon size={16}/>}
+            {loading && loadingText ? loadingText : children}
+        </Component>
+    );
+};
 
 export default Button;

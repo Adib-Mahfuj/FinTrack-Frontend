@@ -1,6 +1,14 @@
-//export const BASE_URL = "https://fintrack-rus7.onrender.com/api/v1.0";
-//export const BASE_URL = "http://localhost:8080/api/v1.0";
-export const BASE_URL = "http://192.168.0.101:8080/api/v1.0";
+// Production API (used when no environment override is provided)
+const PRODUCTION_BASE_URL = "https://fintrack-rus7.onrender.com/api/v1.0";
+
+// Resolution order:
+// 1. VITE_API_BASE_URL (explicit override, e.g. in .env.local or on the hosting platform)
+// 2. Development: the host the app was opened from, so localhost, LAN and phone testing all work
+// 3. Production build: the deployed API
+export const BASE_URL =
+    import.meta.env.VITE_API_BASE_URL ||
+    (import.meta.env.DEV ? `http://${window.location.hostname}:8080/api/v1.0` : PRODUCTION_BASE_URL);
+
 const CLOUDINARY_CLOUD_NAME = "dzz52jay7";
 
 export const API_ENDPOINTS = {
@@ -23,5 +31,6 @@ export const API_ENDPOINTS = {
     EMAIL_INCOME: "/email/income-excel",
     EMAIL_EXPENSE: "/email/expense-excel",
     APPLY_FILTERS: "/filter",
-    UPLOAD_IMAGE : `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`
+    DASHBOARD_DATA: "/dashboard",
+    UPLOAD_IMAGE: `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`
 }
