@@ -1,5 +1,8 @@
 import {useState} from "react";
-import {Pencil, Plus, RefreshCw, Search, Tag, Trash2, Wallet} from "lucide-react";
+import {Pencil, Plus, RefreshCw, Search, Tag, Trash2} from "lucide-react";
+import {Card} from "./Card.jsx";
+import Button from "./Button.jsx";
+import IconTile from "./IconTile.jsx";
 
 const TABS = [
     {label: "All", value: "all"},
@@ -12,41 +15,23 @@ const SECTIONS = [
     {value: "expense", label: "Expense", dot: "bg-red-500"},
 ];
 
+// The search box only appears once the list is long enough to need it
 const SEARCH_THRESHOLD = 8;
 const GRID = "grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3";
 
 const typeOf = (category) => category.type?.toLowerCase();
 const byName = (a, b) => a.name.localeCompare(b.name);
 
-const CategoryIcon = ({icon}) => {
-    const [failed, setFailed] = useState(false);
-
-    return (
-        <div className="w-11 h-11 flex items-center justify-center bg-blue-50 group-hover:bg-white
-                        rounded-lg shrink-0 transition-colors duration-200">
-            {icon && !failed ? (
-                <img
-                    src={icon}
-                    alt=""
-                    className="h-6 w-6"
-                    onError={() => setFailed(true)}
-                />
-            ) : (
-                <Wallet className="text-blue-600" size={20}/>
-            )}
-        </div>
-    );
-};
-
 const CategoryCard = ({category, onEdit, onDelete}) => (
     <div className="group flex items-center gap-3 p-3 border border-gray-200 rounded-lg
                     hover:border-blue-200 hover:bg-blue-50 transition-colors duration-200">
-        <CategoryIcon icon={category.icon}/>
+        <IconTile icon={category.icon}/>
 
-        <p className="flex-1 min-w-0 text-sm font-medium text-slate-800 truncate" title={category.name}>
+        <p className="flex-1 min-w-0 text-sm font-medium text-gray-800 truncate" title={category.name}>
             {category.name}
         </p>
 
+        {/* Revealed on hover, keyboard focus and touch devices */}
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100
                         [@media(hover:none)]:opacity-100 transition-opacity duration-200">
             <button
@@ -72,7 +57,7 @@ const CategoryCard = ({category, onEdit, onDelete}) => (
 );
 
 const CategorySkeleton = () => (
-    <div className={GRID}>
+    <div className={GRID} aria-hidden="true">
         {Array.from({length: 6}).map((_, i) => (
             <div key={i} className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg animate-pulse">
                 <div className="w-11 h-11 rounded-lg bg-gray-100 shrink-0"/>
@@ -103,6 +88,7 @@ const CategoryList = ({
             ? categories.length
             : categories.filter((c) => typeOf(c) === value).length;
 
+    // One section per type, filtered by tab and search, sorted by name
     const sections = SECTIONS
         .filter((s) => activeTab === "all" || activeTab === s.value)
         .map((s) => ({
@@ -129,40 +115,24 @@ const CategoryList = ({
                 <p className="text-sm text-gray-500 mt-1 mb-5">
                     Please check your connection and try again.
                 </p>
-                <button
-                    type="button"
-                    onClick={onRetry}
-                    className="flex items-center gap-2 px-4 py-2.5
-                               bg-white text-gray-700 text-sm font-medium rounded-lg
-                               border border-gray-200 hover:bg-gray-50
-                               focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-                               transition-colors duration-200 cursor-pointer">
-                    <RefreshCw size={16}/>
+                <Button variant="secondary" icon={RefreshCw} onClick={onRetry}>
                     Try again
-                </button>
+                </Button>
             </div>
         );
     } else if (!hasData) {
         content = (
             <div className="flex flex-col items-center text-center py-12">
-                <div className="w-12 h-12 flex items-center justify-center bg-blue-50 rounded-lg mb-4">
-                    <Tag className="text-blue-600" size={22}/>
+                <div className="w-12 h-12 flex items-center justify-center bg-gray-100 rounded-lg mb-4">
+                    <Tag className="text-gray-400" size={22}/>
                 </div>
                 <h4 className="text-base font-semibold text-gray-900">No categories yet</h4>
                 <p className="text-sm text-gray-500 mt-1 mb-5 max-w-sm">
                     Create categories to organize your income and expenses.
                 </p>
-                <button
-                    type="button"
-                    onClick={onAddCategory}
-                    className="flex items-center gap-2 px-4 py-2.5
-                               bg-blue-600 text-white text-sm font-medium rounded-lg
-                               hover:bg-blue-700
-                               focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-                               transition-colors duration-200 cursor-pointer">
-                    <Plus size={16} strokeWidth={2.5}/>
+                <Button icon={Plus} onClick={onAddCategory}>
                     Add Category
-                </button>
+                </Button>
             </div>
         );
     } else if (sections.length === 0) {
@@ -184,7 +154,7 @@ const CategoryList = ({
                     <div className="flex items-center gap-2 mb-3">
                         <span className={`h-2 w-2 rounded-full ${section.dot}`}/>
                         <h4 className="text-sm font-semibold text-gray-700">{section.label}</h4>
-                        <span className="text-xs text-gray-400">{section.items.length}</span>
+                        <span className="text-xs text-gray-500">{section.items.length}</span>
                     </div>
                 )}
                 <div className={GRID}>
@@ -202,7 +172,7 @@ const CategoryList = ({
     }
 
     return (
-        <div className="bg-white border border-gray-200 rounded-xl p-5">
+        <Card>
             {/* Toolbar: tabs + search */}
             {hasData && (
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5 pb-4 border-b border-gray-200">
@@ -218,7 +188,7 @@ const CategoryList = ({
                                     ? "bg-blue-50 text-blue-700"
                                     : "text-gray-500 hover:bg-gray-100 hover:text-gray-700"}`}>
                                 {tab.label}
-                                <span className="ml-1.5 text-xs text-gray-400">{countOf(tab.value)}</span>
+                                <span className="ml-1.5 text-xs text-gray-500">{countOf(tab.value)}</span>
                             </button>
                         ))}
                     </div>
@@ -234,10 +204,11 @@ const CategoryList = ({
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 placeholder="Search categories"
+                                aria-label="Search categories"
                                 className="w-full pl-9 pr-3 py-2 text-sm text-gray-800 bg-white
-                                           border border-gray-200 rounded-lg
-                                           placeholder:text-gray-400
-                                           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+                                           border border-gray-300 rounded-lg
+                                           placeholder:text-gray-500
+                                           focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500
                                            transition-colors duration-200"
                             />
                         </div>
@@ -246,7 +217,7 @@ const CategoryList = ({
             )}
 
             {content}
-        </div>
+        </Card>
     );
 }
 

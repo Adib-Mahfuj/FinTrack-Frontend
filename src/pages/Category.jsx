@@ -6,6 +6,8 @@ import {useEffect, useState} from "react";
 import axiosConfig from "../util/axiosConfig.jsx";
 import {API_ENDPOINTS} from "../util/apiEndpoints.js";
 import toast from "react-hot-toast";
+import PageHeader from "../components/PageHeader.jsx";
+import Button from "../components/Button.jsx";
 import Modal from "../components/Modal.jsx";
 import AddCategoryForm from "../components/AddCategoryForm.jsx";
 import DeleteAlert from "../components/DeleteAlert.jsx";
@@ -146,29 +148,15 @@ const Category = () => {
     return (
         <Dashboard activeMenu="Category">
             <div className="my-5 mx-auto">
-
-                {/* Page header */}
-                <div className="flex items-center justify-between gap-4 mb-6">
-                    <div>
-                        <h2 className="text-2xl font-semibold text-gray-900">Categories</h2>
-                        <p className="text-sm text-gray-500 mt-1">
-                            Organize your income and expenses with custom categories.
-                        </p>
-                    </div>
-                    <button
-                        type="button"
-                        onClick={() => setOpenAddCategoryModal(true)}
-                        className="flex items-center gap-2 px-4 py-2.5 shrink-0 whitespace-nowrap
-                                   border-2 border-blue-600 text-blue-600
-                                   text-sm font-medium rounded-lg
-                                   hover:bg-blue-600 hover:text-white
-                                   hover:shadow-sm active:scale-[0.98]
-                                   focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-                                   transition-all duration-200 cursor-pointer">
-                        <Plus size={18} strokeWidth={2.5}/>
-                        Add Category
-                    </button>
-                </div>
+                <PageHeader
+                    title="Categories"
+                    subtitle="Organize your income and expenses with custom categories."
+                    actions={
+                        <Button icon={Plus} onClick={() => setOpenAddCategoryModal(true)}>
+                            Add Category
+                        </Button>
+                    }
+                />
 
                 {/* Category list */}
                 <CategoryList

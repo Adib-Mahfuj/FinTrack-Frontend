@@ -1,8 +1,17 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
 @import "tailwindcss";
 
-body{
+body {
     font-family: 'Outfit', sans-serif;
     background-color: #fcfbfc;
     overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Respect the OS "reduce motion" setting (loading spinners are left running on purpose) */
+@media (prefers-reduced-motion: reduce) {
+    *, ::before, ::after {
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
 }

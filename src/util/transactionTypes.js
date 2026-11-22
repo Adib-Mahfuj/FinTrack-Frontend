@@ -1,0 +1,63 @@
+import {TrendingDown, TrendingUp} from "lucide-react";
+import {API_ENDPOINTS} from "./apiEndpoints.js";
+import {CHART_COLORS} from "./util.js";
+
+// Everything that differs between the income and expense experiences lives here
+export const TRANSACTION_TYPES = {
+    income: {
+        label: "Income",
+        noun: "income",
+        pageSubtitle: "Track and manage your income sources.",
+        listTitle: "Income Sources",
+        listEmptyTitle: "No income this month",
+        listEmptyDescription: "Income you add this month will appear here.",
+        overviewTitle: "Income Overview",
+        overviewSubtitle: "Daily income",
+        chartEmptyText: "No income recorded this month",
+        totalLabel: "Total income",
+        highestLabel: "Highest income",
+        addLabel: "Add Income",
+        nameLabel: "Income Source",
+        namePlaceholder: "e.g., Salary, Freelance, Bonus",
+        preferredCategoryName: "salary",
+        tone: "emerald",
+        color: CHART_COLORS.income,
+        icon: TrendingUp,
+        positiveIsGood: true,
+        endpoints: {
+            list: API_ENDPOINTS.GET_ALL_INCOMES,
+            add: API_ENDPOINTS.ADD_INCOME,
+            remove: API_ENDPOINTS.DELETE_INCOME,
+            download: API_ENDPOINTS.INCOME_EXCEL_DOWNLOAD,
+            email: API_ENDPOINTS.EMAIL_INCOME,
+        },
+    },
+    expense: {
+        label: "Expense",
+        noun: "expense",
+        pageSubtitle: "Track and manage your spending.",
+        listTitle: "All Expenses",
+        listEmptyTitle: "No expenses this month",
+        listEmptyDescription: "Expenses you add this month will appear here.",
+        overviewTitle: "Expense Overview",
+        overviewSubtitle: "Daily spending",
+        chartEmptyText: "No expenses recorded this month",
+        totalLabel: "Total expense",
+        highestLabel: "Highest expense",
+        addLabel: "Add Expense",
+        nameLabel: "Expense Name",
+        namePlaceholder: "e.g., Rent, Groceries, Transport",
+        preferredCategoryName: undefined,
+        tone: "red",
+        color: CHART_COLORS.expense,
+        icon: TrendingDown,
+        positiveIsGood: false,
+        endpoints: {
+            list: API_ENDPOINTS.GET_ALL_EXPENSES,
+            add: API_ENDPOINTS.ADD_EXPENSE,
+            remove: API_ENDPOINTS.DELETE_EXPENSE,
+            download: API_ENDPOINTS.EXPENSE_EXCEL_DOWNLOAD,
+            email: API_ENDPOINTS.EMAIL_EXPENSE,
+        },
+    },
+};

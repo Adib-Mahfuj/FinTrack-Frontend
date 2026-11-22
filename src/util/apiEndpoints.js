@@ -1,5 +1,6 @@
 //export const BASE_URL = "https://fintrack-rus7.onrender.com/api/v1.0";
-export const BASE_URL = "http://localhost:8080/api/v1.0";
+//export const BASE_URL = "http://localhost:8080/api/v1.0";
+export const BASE_URL = "http://192.168.0.101:8080/api/v1.0";
 const CLOUDINARY_CLOUD_NAME = "dzz52jay7";
 
 export const API_ENDPOINTS = {

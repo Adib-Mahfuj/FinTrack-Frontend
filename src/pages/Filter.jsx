@@ -1,5 +1,8 @@
 import Dashboard from "../components/Dashboard.jsx";
 import TransactionInfoCard from "../components/TransactionInfoCard.jsx";
+import PageHeader from "../components/PageHeader.jsx";
+import Button from "../components/Button.jsx";
+import {Card} from "../components/Card.jsx";
 import {useUser} from "../hooks/useUser.jsx";
 import {useEffect, useMemo, useRef, useState} from "react";
 import {useSearchParams} from "react-router-dom";
@@ -7,6 +10,7 @@ import axios from "axios";
 import axiosConfig from "../util/axiosConfig.jsx";
 import {API_ENDPOINTS} from "../util/apiEndpoints.js";
 import {addThousandsSeparator} from "../util/util.js";
+import {categoryLabel} from "../util/summary.js";
 import moment from "moment";
 import {
     AlertCircle,
@@ -47,17 +51,15 @@ const DEFAULT_FILTERS = {
     sort: "date-desc",
 };
 
+// Field styles match the shared Input component
 const inputClass =
-    "w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-800 " +
-    "outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
+    "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-800 " +
+    "outline-none transition placeholder:text-gray-400 " +
+    "focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20";
 
-const labelClass = "block text-xs font-semibold uppercase tracking-wide text-slate-500 mb-1.5";
+const invalidInputClass = "border-red-400 focus:border-red-500 focus:ring-red-500/20";
 
-const secondaryBtnClass =
-    "flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium " +
-    "text-slate-600 transition-all duration-200 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-800 " +
-    "focus:outline-none focus:ring-2 focus:ring-slate-200 active:scale-95 " +
-    "disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer";
+const labelClass = "mb-1.5 block text-sm font-medium text-gray-700";
 
 /* ------------------------------------------------------------------ */
 /* Helpers                                                              */
@@ -113,12 +115,12 @@ const getPresets = () => {
 /* ------------------------------------------------------------------ */
 
 const FilterChip = ({label, onRemove}) => (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
+    <span className="inline-flex items-center gap-1.5 rounded-lg border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
         {label}
         <button
             type="button"
             onClick={onRemove}
-            className="-mr-1 rounded-full p-0.5 text-blue-400 transition hover:bg-blue-100 hover:text-blue-700 cursor-pointer"
+            className="-mr-1 rounded p-0.5 text-blue-400 transition hover:bg-blue-100 hover:text-blue-700 cursor-pointer"
             aria-label={`Remove filter ${label}`}
         >
             <X size={12}/>
@@ -130,26 +132,26 @@ const ResultsSkeleton = () => (
     <div className="grid grid-cols-1 md:grid-cols-2" aria-hidden="true">
         {[...Array(6)].map((_, i) => (
             <div key={i} className="mt-2 flex animate-pulse items-center gap-4 p-3">
-                <div className="h-12 w-12 rounded-full bg-slate-100"/>
+                <div className="h-12 w-12 rounded-lg bg-gray-100"/>
                 <div className="flex-1 space-y-2">
-                    <div className="h-3 w-1/3 rounded bg-slate-100"/>
-                    <div className="h-3 w-1/5 rounded bg-slate-100"/>
+                    <div className="h-3 w-1/3 rounded bg-gray-100"/>
+                    <div className="h-3 w-1/5 rounded bg-gray-100"/>
                 </div>
-                <div className="h-8 w-24 rounded-md bg-slate-100"/>
+                <div className="h-8 w-24 rounded-md bg-gray-100"/>
             </div>
         ))}
     </div>
 );
 
-const StateMessage = ({icon: Icon, tone = "slate", title, description, children}) => {
-    const toneClass = tone === "red" ? "bg-red-50 text-red-500" : "bg-slate-100 text-slate-400";
+const StateMessage = ({icon: Icon, tone = "gray", title, description, children}) => {
+    const toneClass = tone === "red" ? "bg-red-50 text-red-500" : "bg-gray-100 text-gray-400";
     return (
         <div className="flex flex-col items-center justify-center py-14 text-center">
-            <div className={`mb-3 flex h-14 w-14 items-center justify-center rounded-full ${toneClass}`}>
-                <Icon size={24}/>
+            <div className={`mb-4 flex h-12 w-12 items-center justify-center rounded-lg ${toneClass}`}>
+                <Icon size={22}/>
             </div>
-            <p className="text-sm font-medium text-slate-700">{title}</p>
-            <p className="mt-1 max-w-sm text-sm text-slate-400">{description}</p>
+            <p className="text-base font-semibold text-gray-900">{title}</p>
+            <p className="mt-1 max-w-sm text-sm text-gray-500">{description}</p>
             {children}
         </div>
     );
@@ -160,34 +162,34 @@ const Pagination = ({page, totalPages, total, onChange}) => {
     const to = Math.min(page * PAGE_SIZE, total);
 
     return (
-        <div className="mt-4 flex flex-col items-center justify-between gap-3 border-t border-slate-100 pt-4 sm:flex-row">
-            <p className="text-sm text-slate-500">
-                Showing <span className="font-medium text-slate-700">{from}–{to}</span> of{" "}
-                <span className="font-medium text-slate-700">{total}</span>
+        <div className="mt-4 flex flex-col items-center justify-between gap-3 border-t border-gray-100 pt-4 sm:flex-row">
+            <p className="text-sm text-gray-500">
+                Showing <span className="font-medium text-gray-700">{from}–{to}</span> of{" "}
+                <span className="font-medium text-gray-700">{total}</span>
             </p>
 
             <div className="flex items-center gap-2">
-                <button
-                    type="button"
+                <Button
+                    variant="secondary"
+                    size="sm"
+                    icon={ChevronLeft}
                     onClick={() => onChange(page - 1)}
                     disabled={page === 1}
-                    className={secondaryBtnClass}
                 >
-                    <ChevronLeft size={16}/>
                     Previous
-                </button>
-                <span className="px-2 text-sm text-slate-500">
+                </Button>
+                <span className="px-2 text-sm text-gray-500">
                     Page {page} of {totalPages}
                 </span>
-                <button
-                    type="button"
+                <Button
+                    variant="secondary"
+                    size="sm"
                     onClick={() => onChange(page + 1)}
                     disabled={page === totalPages}
-                    className={secondaryBtnClass}
                 >
                     Next
                     <ChevronRight size={16}/>
-                </button>
+                </Button>
             </div>
         </div>
     );
@@ -363,24 +365,20 @@ const Filter = () => {
     return (
         <Dashboard activeMenu="Filter">
             <div className="my-5 mx-auto">
+                <PageHeader
+                    title="Filter"
+                    subtitle="Search and filter your income and expenses by name, date range or type."
+                />
+
                 <div className="grid grid-cols-1 gap-6">
 
                     {/* ---------- Filter card ---------- */}
-                    <div className="p-6 bg-white border border-slate-100 rounded-xl shadow-sm">
-                        <div className="mb-6">
-                            <h5 className="text-xl font-semibold text-slate-800 tracking-tight">
-                                Filter Transactions
-                            </h5>
-                            <p className="mt-1 text-xs text-slate-400">
-                                Search and filter your income and expenses by name, date range or amount.
-                            </p>
-                        </div>
-
+                    <Card>
                         {/* Search */}
                         <div className="mb-4">
                             <label className={labelClass} htmlFor="keyword">Search</label>
                             <div className="relative">
-                                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"/>
+                                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"/>
                                 <input
                                     id="keyword"
                                     type="text"
@@ -395,7 +393,7 @@ const Filter = () => {
                                     <button
                                         type="button"
                                         onClick={clearKeyword}
-                                        className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-full p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 cursor-pointer"
+                                        className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded p-1 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600 cursor-pointer"
                                         aria-label="Clear search"
                                     >
                                         <X size={14}/>
@@ -408,7 +406,7 @@ const Filter = () => {
                             {/* Type toggle */}
                             <div>
                                 <span className={labelClass}>Type</span>
-                                <div role="group" aria-label="Transaction type" className="flex rounded-lg bg-slate-100 p-1">
+                                <div role="group" aria-label="Transaction type" className="flex rounded-lg bg-gray-100 p-1">
                                     {TYPES.map((t) => (
                                         <button
                                             key={t}
@@ -417,8 +415,8 @@ const Filter = () => {
                                             onClick={() => updateFilter({type: t})}
                                             className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium capitalize transition cursor-pointer ${
                                                 filters.type === t
-                                                    ? "bg-white text-slate-900 shadow-sm"
-                                                    : "text-slate-500 hover:text-slate-700"
+                                                    ? "bg-white text-gray-900 shadow-sm"
+                                                    : "text-gray-500 hover:text-gray-700"
                                             }`}
                                         >
                                             {t}
@@ -436,7 +434,7 @@ const Filter = () => {
                                     max={filters.endDate || today}
                                     aria-invalid={rangeInvalid}
                                     onChange={(e) => updateFilter({startDate: e.target.value})}
-                                    className={`${inputClass} ${rangeInvalid ? "border-red-300 focus:border-red-400 focus:ring-red-100" : ""}`}
+                                    className={`${inputClass} ${rangeInvalid ? invalidInputClass : ""}`}
                                 />
                             </div>
 
@@ -450,7 +448,7 @@ const Filter = () => {
                                     max={today}
                                     aria-invalid={rangeInvalid}
                                     onChange={(e) => updateFilter({endDate: e.target.value})}
-                                    className={`${inputClass} ${rangeInvalid ? "border-red-300 focus:border-red-400 focus:ring-red-100" : ""}`}
+                                    className={`${inputClass} ${rangeInvalid ? invalidInputClass : ""}`}
                                 />
                             </div>
 
@@ -471,19 +469,17 @@ const Filter = () => {
 
                         {/* Quick ranges */}
                         <div className="mt-4 flex flex-wrap items-center gap-2">
-                            <span className="mr-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                Quick range
-                            </span>
+                            <span className="mr-1 text-sm font-medium text-gray-700">Quick range</span>
                             {presets.map((p) => (
                                 <button
                                     key={p.key}
                                     type="button"
                                     aria-pressed={activePreset === p.key}
                                     onClick={() => updateFilter({startDate: p.start, endDate: p.end})}
-                                    className={`rounded-full border px-3 py-1 text-xs font-medium transition cursor-pointer ${
+                                    className={`rounded-lg border px-3 py-1 text-xs font-medium transition cursor-pointer ${
                                         activePreset === p.key
                                             ? "border-blue-200 bg-blue-50 text-blue-700"
-                                            : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50"
+                                            : "border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50"
                                     }`}
                                 >
                                     {p.label}
@@ -496,133 +492,135 @@ const Filter = () => {
                                 Start date cannot be after end date.
                             </p>
                         )}
-                    </div>
+                    </Card>
 
                     {/* ---------- Results card ---------- */}
-                    <div ref={resultsRef} className="scroll-mt-6 p-6 bg-white border border-slate-100 rounded-xl shadow-sm">
-                        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                            <div className="flex items-center gap-3">
-                                <h5 className="text-xl font-semibold text-slate-800 tracking-tight">Results</h5>
+                    <div ref={resultsRef} className="scroll-mt-6">
+                        <Card>
+                            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                                <div className="flex items-center gap-3">
+                                    <h3 className="text-lg font-semibold text-gray-900">Results</h3>
 
-                                {showSummary && (
-                                    <span
-                                        aria-live="polite"
-                                        className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600"
-                                    >
-                                        {transactions.length} {transactions.length === 1 ? "transaction" : "transactions"}
-                                    </span>
-                                )}
+                                    {showSummary && (
+                                        <span
+                                            aria-live="polite"
+                                            className="rounded-md bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600"
+                                        >
+                                            {transactions.length} {transactions.length === 1 ? "transaction" : "transactions"}
+                                        </span>
+                                    )}
 
-                                {loading && !initialLoad && (
-                                    <LoaderCircle
-                                        className="h-4 w-4 animate-spin text-slate-400"
-                                        aria-label="Updating results"
-                                    />
-                                )}
-                            </div>
-
-                            {showSummary && transactions.length > 0 && (
-                                <div
-                                    className={`flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-semibold ${
-                                        isIncome ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
-                                    }`}
-                                >
-                                    <span className="font-medium text-gray-500">Total</span>
-                                    <span>BDT {addThousandsSeparator(totalAmount)}</span>
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Active filter chips + Clear all */}
-                        {chips.length > 0 && (
-                            <div className="mt-4 flex flex-wrap items-center gap-2">
-                                {chips.map((chip) => (
-                                    <FilterChip key={chip.key} label={chip.label} onRemove={chip.onRemove}/>
-                                ))}
-
-                                <button
-                                    type="button"
-                                    onClick={clearAll}
-                                    className="group ml-1 inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium text-slate-500 underline-offset-2 transition hover:bg-slate-100 hover:text-slate-900 hover:underline focus:outline-none focus:ring-2 focus:ring-slate-200 cursor-pointer"
-                                >
-                                    <RotateCcw
-                                        size={12}
-                                        className="transition-transform duration-300 group-hover:-rotate-180"
-                                    />
-                                    Clear all
-                                </button>
-                            </div>
-                        )}
-
-                        <div className="mt-2" aria-busy={loading}>
-                            {showSkeleton ? (
-                                <ResultsSkeleton/>
-                            ) : error ? (
-                                <StateMessage
-                                    icon={AlertCircle}
-                                    tone="red"
-                                    title="Could not load transactions"
-                                    description="Check your connection and try again."
-                                >
-                                    <button
-                                        type="button"
-                                        onClick={() => setReloadKey((k) => k + 1)}
-                                        className={`${secondaryBtnClass} mt-4`}
-                                    >
-                                        <RefreshCw size={16} className="text-slate-400"/>
-                                        Try again
-                                    </button>
-                                </StateMessage>
-                            ) : transactions.length === 0 ? (
-                                hasActiveFilters ? (
-                                    <StateMessage
-                                        icon={SearchX}
-                                        title="No matching transactions"
-                                        description="Try a different date range or keyword."
-                                    >
-                                        <button type="button" onClick={clearAll} className={`${secondaryBtnClass} mt-4`}>
-                                            <RotateCcw size={16} className="text-slate-400"/>
-                                            Clear filters
-                                        </button>
-                                    </StateMessage>
-                                ) : (
-                                    <StateMessage
-                                        icon={Inbox}
-                                        title={`No ${resultType} yet`}
-                                        description={`Your ${resultType} transactions will appear here once you add them.`}
-                                    />
-                                )
-                            ) : (
-                                <>
-                                    <div
-                                        className={`grid grid-cols-1 md:grid-cols-2 transition-opacity duration-200 ${
-                                            loading ? "opacity-50" : "opacity-100"
-                                        }`}
-                                    >
-                                        {pageItems.map((t) => (
-                                            <TransactionInfoCard
-                                                key={`${resultType}-${t.id}`}
-                                                title={t.name}
-                                                icon={t.icon}
-                                                date={moment(t.date).format("DD-MM-YYYY")}
-                                                amount={t.amount}
-                                                type={resultType}
-                                                hideDeleteBtn
-                                            />
-                                        ))}
-                                    </div>
-
-                                    {transactions.length > PAGE_SIZE && (
-                                        <Pagination
-                                            page={currentPage}
-                                            totalPages={totalPages}
-                                            total={transactions.length}
-                                            onChange={handlePageChange}
+                                    {loading && !initialLoad && (
+                                        <LoaderCircle
+                                            className="h-4 w-4 animate-spin text-gray-400"
+                                            aria-label="Updating results"
                                         />
                                     )}
-                                </>
+                                </div>
+
+                                {showSummary && transactions.length > 0 && (
+                                    <div
+                                        className={`flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-semibold ${
+                                            isIncome ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"
+                                        }`}
+                                    >
+                                        <span className="font-medium text-gray-500">Total</span>
+                                        <span>BDT {addThousandsSeparator(totalAmount)}</span>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Active filter chips + Clear all */}
+                            {chips.length > 0 && (
+                                <div className="mt-4 flex flex-wrap items-center gap-2">
+                                    {chips.map((chip) => (
+                                        <FilterChip key={chip.key} label={chip.label} onRemove={chip.onRemove}/>
+                                    ))}
+
+                                    <button
+                                        type="button"
+                                        onClick={clearAll}
+                                        className="group ml-1 inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-medium text-gray-500 underline-offset-2 transition hover:bg-gray-100 hover:text-gray-900 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500/30 cursor-pointer"
+                                    >
+                                        <RotateCcw
+                                            size={12}
+                                            className="transition-transform duration-300 group-hover:-rotate-180"
+                                        />
+                                        Clear all
+                                    </button>
+                                </div>
                             )}
-                        </div>
+
+                            <div className="mt-2" aria-busy={loading}>
+                                {showSkeleton ? (
+                                    <ResultsSkeleton/>
+                                ) : error ? (
+                                    <StateMessage
+                                        icon={AlertCircle}
+                                        tone="red"
+                                        title="Could not load transactions"
+                                        description="Check your connection and try again."
+                                    >
+                                        <Button
+                                            variant="secondary"
+                                            icon={RefreshCw}
+                                            className="mt-4"
+                                            onClick={() => setReloadKey((k) => k + 1)}
+                                        >
+                                            Try again
+                                        </Button>
+                                    </StateMessage>
+                                ) : transactions.length === 0 ? (
+                                    hasActiveFilters ? (
+                                        <StateMessage
+                                            icon={SearchX}
+                                            title="No matching transactions"
+                                            description="Try a different date range or keyword."
+                                        >
+                                            <Button variant="secondary" icon={RotateCcw} className="mt-4" onClick={clearAll}>
+                                                Clear filters
+                                            </Button>
+                                        </StateMessage>
+                                    ) : (
+                                        <StateMessage
+                                            icon={Inbox}
+                                            title={`No ${resultType} yet`}
+                                            description={`Your ${resultType} transactions will appear here once you add them.`}
+                                        />
+                                    )
+                                ) : (
+                                    <>
+                                        <div
+                                            className={`grid grid-cols-1 md:grid-cols-2 transition-opacity duration-200 ${
+                                                loading ? "opacity-50" : "opacity-100"
+                                            }`}
+                                        >
+                                            {pageItems.map((t) => (
+                                                <TransactionInfoCard
+                                                    key={`${resultType}-${t.id}`}
+                                                    title={t.name}
+                                                    icon={t.icon}
+                                                    category={categoryLabel(t)}
+                                                    date={moment(t.date).format("DD-MM-YYYY")}
+                                                    amount={t.amount}
+                                                    type={resultType}
+                                                    hideDeleteBtn
+                                                />
+                                            ))}
+                                        </div>
+
+                                        {transactions.length > PAGE_SIZE && (
+                                            <Pagination
+                                                page={currentPage}
+                                                totalPages={totalPages}
+                                                total={transactions.length}
+                                                onChange={handlePageChange}
+                                            />
+                                        )}
+                                    </>
+                                )}
+                            </div>
+                        </Card>
                     </div>
 
                 </div>

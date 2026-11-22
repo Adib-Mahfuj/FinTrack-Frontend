@@ -1,7 +1,9 @@
 import {useState} from "react";
-import Input from "./input.jsx";
 import EmojiPickerPopup from "./EmojiPickerPopup.jsx";
-import {LoaderCircle} from "lucide-react";
+import Input from "./input.jsx";
+import Button from "./Button.jsx";
+import {useModal} from "./Modal.jsx";
+import {canAutoFocus} from "../util/device.js";
 
 const TYPE_OPTIONS = [
     {label: "Income", value: "income", active: "border-emerald-600 bg-emerald-50 text-emerald-700"},
@@ -9,14 +11,21 @@ const TYPE_OPTIONS = [
 ];
 
 const EMPTY_CATEGORY = {name: "", type: "income", icon: ""};
+const MAX_NAME_LENGTH = 50;
 
+// Shared form for creating and editing a category
 const AddCategoryForm = ({onAddCategory, onCancel, initialCategoryData, isEditing}) => {
+    const {onClose} = useModal();
+    const handleCancel = onCancel ?? onClose;
+
+    // The modal unmounts its content when closed, so the form always starts from fresh state
     const [category, setCategory] = useState(() =>
         isEditing && initialCategoryData ? {...initialCategoryData} : {...EMPTY_CATEGORY}
     );
     const [loading, setLoading] = useState(false);
     const [nameError, setNameError] = useState("");
 
+    // Prevents submitting an edit that changes nothing
     const isUnchanged =
         isEditing &&
         initialCategoryData &&
@@ -29,8 +38,8 @@ const AddCategoryForm = ({onAddCategory, onCancel, initialCategoryData, isEditin
         if (key === "name") setNameError("");
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const handleSubmit = async (event) => {
+        event.preventDefault();
 
         if (!category.name.trim()) {
             setNameError("Category name is required");
@@ -47,7 +56,6 @@ const AddCategoryForm = ({onAddCategory, onCancel, initialCategoryData, isEditin
 
     return (
         <form onSubmit={handleSubmit} noValidate>
-
             <EmojiPickerPopup
                 icon={category.icon}
                 onSelect={(selectedIcon) => handleChange("icon", selectedIcon)}
@@ -59,14 +67,14 @@ const AddCategoryForm = ({onAddCategory, onCancel, initialCategoryData, isEditin
                 label="Category Name"
                 placeholder="e.g., Freelance, Salary, Groceries"
                 type="text"
+                maxLength={MAX_NAME_LENGTH}
+                error={nameError}
+                autoFocus={canAutoFocus()}
             />
-            {nameError && (
-                <p className="-mt-2 mb-4 text-xs text-red-600">{nameError}</p>
-            )}
 
             {/* Type toggle */}
             <div className="mb-2">
-                <p className="text-sm font-medium text-gray-700 mb-2">Category Type</p>
+                <p className="mb-1.5 text-sm font-medium text-gray-700">Category Type</p>
                 <div className="grid grid-cols-2 gap-3" role="radiogroup" aria-label="Category type">
                     {TYPE_OPTIONS.map((option) => {
                         const selected = category.type === option.value;
@@ -77,12 +85,9 @@ const AddCategoryForm = ({onAddCategory, onCancel, initialCategoryData, isEditin
                                 role="radio"
                                 aria-checked={selected}
                                 onClick={() => handleChange("type", option.value)}
-                                className={`px-4 py-2.5 text-sm font-medium rounded-lg border
-                                    focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-                                    transition-colors duration-200 cursor-pointer
-                                    ${selected
-                                    ? option.active
-                                    : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50"}`}>
+                                className={`cursor-pointer rounded-lg border px-4 py-2.5 text-sm font-medium transition-colors duration-200
+                                    focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2
+                                    ${selected ? option.active : "border-gray-200 bg-white text-gray-600 hover:bg-gray-50"}`}>
                                 {option.label}
                             </button>
                         );
@@ -91,43 +96,20 @@ const AddCategoryForm = ({onAddCategory, onCancel, initialCategoryData, isEditin
             </div>
 
             {/* Actions */}
-            <div className="flex justify-end gap-3 mt-6 pt-5 border-t border-gray-100">
-                {onCancel && (
-                    <button
-                        type="button"
-                        onClick={onCancel}
-                        disabled={loading}
-                        className="px-5 py-2.5 text-sm font-medium rounded-lg
-                                   bg-white text-gray-700 border border-gray-200
-                                   hover:bg-gray-50
-                                   focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-                                   disabled:opacity-60 disabled:cursor-not-allowed
-                                   transition-colors duration-200 cursor-pointer">
+            <div className="mt-6 flex justify-end gap-3 border-t border-gray-100 pt-5">
+                {handleCancel && (
+                    <Button variant="secondary" onClick={handleCancel} disabled={loading}>
                         Cancel
-                    </button>
+                    </Button>
                 )}
-
-                <button
+                <Button
                     type="submit"
-                    disabled={loading || isUnchanged}
-                    className="flex items-center gap-2 px-5 py-2.5
-                               bg-blue-600 text-white
-                               text-sm font-medium rounded-lg
-                               hover:bg-blue-700 hover:shadow-sm
-                               active:scale-[0.98]
-                               focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-                               disabled:opacity-60 disabled:cursor-not-allowed
-                               disabled:hover:bg-blue-600 disabled:hover:shadow-none disabled:active:scale-100
-                               transition-all duration-200 cursor-pointer">
-                    {loading ? (
-                        <>
-                            <LoaderCircle className="w-4 h-4 animate-spin"/>
-                            {isEditing ? "Updating..." : "Adding..."}
-                        </>
-                    ) : (
-                        isEditing ? "Update Category" : "Add Category"
-                    )}
-                </button>
+                    loading={loading}
+                    loadingText={isEditing ? "Updating..." : "Adding..."}
+                    disabled={isUnchanged}
+                >
+                    {isEditing ? "Update Category" : "Add Category"}
+                </Button>
             </div>
         </form>
     )
