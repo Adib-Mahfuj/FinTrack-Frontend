@@ -11,10 +11,14 @@ export const getErrorMessage = (error, fallback = "Something went wrong. Please 
     }
 
     const data = error?.response?.data;
+    if (typeof data === "string" && data.trim()) return data;
     if (data?.message || data?.error) return data.message || data.error;
 
     // Plain errors thrown by our own code carry a ready-made message
     if (error?.message && !error?.isAxiosError) return error.message;
 
-    return fallback;
+    // The server answered without a usable message; in development show the status for quick diagnosis
+    return import.meta.env.DEV && error?.response?.status
+        ? `${fallback} (HTTP ${error.response.status})`
+        : fallback;
 };

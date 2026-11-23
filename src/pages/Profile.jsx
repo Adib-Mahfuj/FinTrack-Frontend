@@ -19,6 +19,8 @@ const MAX_NAME_LENGTH = 100;
 const MIN_PASSWORD_LENGTH = 8;
 const MAX_PASSWORD_LENGTH = 72;
 
+const EMPTY_PASSWORD_FORM = {currentPassword: "", newPassword: "", confirmPassword: ""};
+
 const ErrorBanner = ({message}) =>
     message ? (
         <p role="alert" className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
@@ -160,14 +162,23 @@ const PersonalInfoCard = ({user}) => {
 
 // Current password + new password with confirmation
 const PasswordCard = () => {
-    const [form, setForm] = useState({currentPassword: "", newPassword: "", confirmPassword: ""});
+    const [form, setForm] = useState(EMPTY_PASSWORD_FORM);
     const [errors, setErrors] = useState({});
     const [formError, setFormError] = useState("");
     const [saving, setSaving] = useState(false);
 
+    // Any typed value makes the form dirty, which reveals Discard and enables Update
+    const isDirty = Object.values(form).some(Boolean);
+
     const handleChange = (key, value) => {
         setForm((prev) => ({...prev, [key]: value}));
         setErrors((prev) => ({...prev, [key]: undefined}));
+        setFormError("");
+    };
+
+    const handleDiscard = () => {
+        setForm(EMPTY_PASSWORD_FORM);
+        setErrors({});
         setFormError("");
     };
 
@@ -205,7 +216,7 @@ const PasswordCard = () => {
                 newPassword: form.newPassword,
             });
 
-            setForm({currentPassword: "", newPassword: "", confirmPassword: ""});
+            setForm(EMPTY_PASSWORD_FORM);
             toast.success("Password updated successfully");
         } catch (error) {
             console.error("Failed to change password", error);
@@ -251,8 +262,13 @@ const PasswordCard = () => {
 
                 <ErrorBanner message={formError}/>
 
-                <div className="mt-2 flex justify-end border-t border-gray-100 pt-5">
-                    <Button type="submit" loading={saving} loadingText="Updating...">
+                <div className="mt-2 flex justify-end gap-3 border-t border-gray-100 pt-5">
+                    {isDirty && !saving && (
+                        <Button variant="secondary" onClick={handleDiscard}>
+                            Discard
+                        </Button>
+                    )}
+                    <Button type="submit" loading={saving} loadingText="Updating..." disabled={!isDirty}>
                         Update password
                     </Button>
                 </div>
