@@ -1,5 +1,6 @@
 import Dashboard from "../components/Dashboard.jsx";
 import {useUser} from "../hooks/useUser.jsx";
+import useCategoryActivity from "../hooks/useCategoryActivity.js";
 import {Plus} from "lucide-react";
 import CategoryList from "../components/CategoryList.jsx";
 import {useEffect, useState} from "react";
@@ -19,10 +20,12 @@ const isSameCategory = (category, name, type) =>
 
 const Category = () => {
     useUser();
+    const {activity, loading: activityLoading} = useCategoryActivity();
+
     const [loading, setLoading] = useState(true);
     const [fetchFailed, setFetchFailed] = useState(false);
     const [categoryData, setCategoryData] = useState([]);
-    const [openAddCategoryModal, setOpenAddCategoryModal] = useState(false);
+    const [addType, setAddType] = useState(null); // "income" | "expense" | null (closed)
     const [openEditCategoryModal, setOpenEditCategoryModal] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [categoryToDelete, setCategoryToDelete] = useState(null);
@@ -49,7 +52,7 @@ const Category = () => {
         fetchCategoryDetails();
     }, []);
 
-    const closeAddModal = () => setOpenAddCategoryModal(false);
+    const closeAddModal = () => setAddType(null);
 
     const closeEditModal = () => {
         setOpenEditCategoryModal(false);
@@ -152,31 +155,33 @@ const Category = () => {
                     title="Categories"
                     subtitle="Organize your income and expenses with custom categories."
                     actions={
-                        <Button icon={Plus} onClick={() => setOpenAddCategoryModal(true)}>
+                        <Button icon={Plus} onClick={() => setAddType("income")}>
                             Add Category
                         </Button>
                     }
                 />
 
-                {/* Category list */}
                 <CategoryList
                     categories={categoryData}
+                    activity={activity}
+                    activityLoading={activityLoading}
                     loading={loading}
                     error={fetchFailed}
                     onRetry={fetchCategoryDetails}
+                    onAddCategory={setAddType}
                     onEditCategory={handleEditCategory}
                     onDeleteCategory={setCategoryToDelete}
-                    onAddCategory={() => setOpenAddCategoryModal(true)}
                 />
 
                 {/* Add category modal */}
                 <Modal
-                    isOpen={openAddCategoryModal}
+                    isOpen={addType !== null}
                     onClose={closeAddModal}
                     title="Add Category"
                     maxWidth="max-w-md"
                 >
                     <AddCategoryForm
+                        defaultType={addType ?? "income"}
                         onAddCategory={handleAddCategory}
                         onCancel={closeAddModal}
                     />

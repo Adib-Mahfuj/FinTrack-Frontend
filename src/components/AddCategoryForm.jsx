@@ -10,17 +10,18 @@ const TYPE_OPTIONS = [
     {label: "Expense", value: "expense", active: "border-red-600 bg-red-50 text-red-700"},
 ];
 
-const EMPTY_CATEGORY = {name: "", type: "income", icon: ""};
 const MAX_NAME_LENGTH = 50;
 
 // Shared form for creating and editing a category
-const AddCategoryForm = ({onAddCategory, onCancel, initialCategoryData, isEditing}) => {
+const AddCategoryForm = ({onAddCategory, onCancel, initialCategoryData, isEditing, defaultType = "income"}) => {
     const {onClose} = useModal();
     const handleCancel = onCancel ?? onClose;
 
     // The modal unmounts its content when closed, so the form always starts from fresh state
     const [category, setCategory] = useState(() =>
-        isEditing && initialCategoryData ? {...initialCategoryData} : {...EMPTY_CATEGORY}
+        isEditing && initialCategoryData
+            ? {...initialCategoryData}
+            : {name: "", type: defaultType, icon: ""}
     );
     const [loading, setLoading] = useState(false);
     const [nameError, setNameError] = useState("");
