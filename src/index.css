@@ -8,10 +8,45 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
+/* Gentle floating motion for decorative cards */
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.animate-float {
+    animation: float 6s ease-in-out infinite;
+}
+
+/* Soft entrance for the auth forms */
+@keyframes fade-up {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+.animate-fade-up {
+    animation: fade-up 0.4s ease-out both;
+}
+
 /* Respect the OS "reduce motion" setting (loading spinners are left running on purpose) */
 @media (prefers-reduced-motion: reduce) {
     *, ::before, ::after {
         transition-duration: 0.01ms !important;
         scroll-behavior: auto !important;
+    }
+
+    .animate-float,
+    .animate-fade-up {
+        animation: none;
     }
 }

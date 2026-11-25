@@ -1,87 +1,85 @@
 import {useEffect} from "react";
 import {Link} from "react-router-dom";
-import {BarChart3} from "lucide-react";
 import {assets} from "../assets/assests.js";
-import ProductPreview from "./ProductPreview.jsx";
+import AuthShowcase from "./AuthShowcase.jsx";
 
-// Decorative layers of the dark brand panel
-const PANEL_GLOW =
-    "radial-gradient(60% 50% at 85% 0%, rgba(37,99,235,0.45), transparent 70%), " +
-    "radial-gradient(50% 40% at 0% 100%, rgba(37,99,235,0.25), transparent 70%)";
-const PANEL_GRID =
-    "linear-gradient(white 1px, transparent 1px), linear-gradient(90deg, white 1px, transparent 1px)";
+// Soft backdrop of the centered (login) layout
+const BACKDROP = "radial-gradient(60% 40% at 50% 0%, rgba(37,99,235,0.12), transparent 70%)";
+const DOTS = "radial-gradient(#cbd5e1 1px, transparent 1px)";
+const DOTS_FADE = "radial-gradient(ellipse at center, black 30%, transparent 75%)";
 
-// The preview fades out towards the bottom edge
-const FADE_MASK = "linear-gradient(to bottom, black 55%, transparent)";
+const LOGO_LINK =
+    "rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500";
 
-// Split-screen shell shared by the login and signup pages
-const AuthLayout = ({pageTitle, title, subtitle, children, footer}) => {
+// Login: a minimal centered card, nothing but the form
+const CardLayout = ({title, subtitle, children, footer}) => (
+    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-gray-50 px-5 py-10">
+        <div aria-hidden="true" className="absolute inset-0" style={{backgroundImage: BACKDROP}}/>
+        <div
+            aria-hidden="true"
+            className="absolute inset-0"
+            style={{
+                backgroundImage: DOTS,
+                backgroundSize: "22px 22px",
+                maskImage: DOTS_FADE,
+                WebkitMaskImage: DOTS_FADE,
+                opacity: 0.6,
+            }}
+        />
+
+        <Link to="/" aria-label="FinTrack home" className={`relative ${LOGO_LINK}`}>
+            <img src={assets.logo} alt="FinTrack" className="h-11 w-auto"/>
+        </Link>
+
+        <main className="animate-fade-up relative mt-8 w-full max-w-[420px] rounded-2xl border border-gray-200 bg-white p-6 shadow-xl shadow-blue-950/5 sm:p-8">
+            <h1 className="text-2xl font-semibold tracking-tight text-gray-900">{title}</h1>
+            {subtitle && <p className="mt-2 text-sm text-gray-500">{subtitle}</p>}
+
+            <div className="mt-8">{children}</div>
+
+            {footer && (
+                <p className="mt-6 border-t border-gray-100 pt-5 text-center text-sm text-gray-600">{footer}</p>
+            )}
+        </main>
+
+        <p className="relative mt-6 text-xs text-gray-500">
+            Private by design · © {new Date().getFullYear()} FinTrack
+        </p>
+    </div>
+);
+
+// Signup: form on the left (about 42%), product showcase on the right (about 58%)
+const SplitLayout = ({title, subtitle, children, footer}) => (
+    <div className="grid min-h-screen bg-white lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+        <div className="flex min-h-screen flex-col px-5 py-6 sm:px-10 lg:px-14">
+            <Link to="/" aria-label="FinTrack home" className={`self-start ${LOGO_LINK}`}>
+                <img src={assets.logo} alt="FinTrack" className="h-10 w-auto"/>
+            </Link>
+
+            <main className="animate-fade-up mx-auto flex w-full max-w-[420px] flex-1 flex-col justify-center py-10">
+                <h1 className="text-2xl font-semibold tracking-tight text-gray-900">{title}</h1>
+                {subtitle && <p className="mt-2 text-sm text-gray-500">{subtitle}</p>}
+
+                <div className="mt-8">{children}</div>
+
+                {footer && <p className="mt-6 text-center text-sm text-gray-600">{footer}</p>}
+            </main>
+        </div>
+
+        {/* Stays in view while a long form scrolls */}
+        <AuthShowcase className="lg:sticky lg:top-0 lg:h-screen"/>
+    </div>
+);
+
+// Shared shell of the auth pages: variant "card" (default) or "split"
+const AuthLayout = ({variant = "card", pageTitle, ...layoutProps}) => {
     useEffect(() => {
         document.title = `${pageTitle} · FinTrack`;
     }, [pageTitle]);
 
-    return (
-        <div className="grid min-h-screen bg-white lg:grid-cols-[1.05fr_1fr]">
-            {/* Brand panel, desktop only */}
-            <aside className="relative hidden flex-col justify-between overflow-hidden bg-slate-950 p-12 text-white lg:flex xl:p-16">
-                <div aria-hidden="true" className="absolute inset-0" style={{backgroundImage: PANEL_GLOW}}/>
-                <div
-                    aria-hidden="true"
-                    className="absolute inset-0"
-                    style={{backgroundImage: PANEL_GRID, backgroundSize: "48px 48px", opacity: 0.06}}
-                />
+    const Layout = variant === "split" ? SplitLayout : CardLayout;
 
-                <Link
-                    to="/"
-                    className="relative flex w-fit items-center gap-2.5 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
-                >
-                    <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600">
-                        <BarChart3 size={20}/>
-                    </span>
-                    <span className="text-lg font-semibold tracking-tight">FinTrack</span>
-                </Link>
-
-                <div className="relative">
-                    <h2 className="max-w-md text-4xl font-semibold leading-tight tracking-tight xl:text-5xl">
-                        Your money, finally clear.
-                    </h2>
-                    <p className="mt-4 max-w-md text-lg text-slate-300">
-                        Record income and expenses, then see exactly where your money goes each month.
-                    </p>
-
-                    <div
-                        className="relative mt-10 h-[340px] max-w-md overflow-hidden"
-                        style={{maskImage: FADE_MASK, WebkitMaskImage: FADE_MASK}}
-                    >
-                        <ProductPreview/>
-                    </div>
-                </div>
-
-                <p className="relative text-sm text-slate-400">Private by design · Works on every device</p>
-            </aside>
-
-            {/* Form column */}
-            <div className="flex min-h-screen flex-col px-5 py-6 sm:px-10">
-                {/* The brand panel is hidden on small screens, so the logo moves here */}
-                <Link
-                    to="/"
-                    aria-label="FinTrack home"
-                    className="self-start rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 lg:hidden"
-                >
-                    <img src={assets.logo} alt="FinTrack" className="h-10 w-auto"/>
-                </Link>
-
-                <main className="mx-auto flex w-full max-w-[400px] flex-1 flex-col justify-center py-10">
-                    <h1 className="text-2xl font-semibold tracking-tight text-gray-900">{title}</h1>
-                    {subtitle && <p className="mt-2 text-sm text-gray-500">{subtitle}</p>}
-
-                    <div className="mt-8">{children}</div>
-
-                    {footer && <p className="mt-6 text-center text-sm text-gray-600">{footer}</p>}
-                </main>
-            </div>
-        </div>
-    );
+    return <Layout {...layoutProps}/>;
 };
 
 export default AuthLayout;

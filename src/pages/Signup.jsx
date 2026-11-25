@@ -76,7 +76,7 @@ const Signup = () => {
     // The account must be activated through the emailed link before the first login
     if (registeredEmail) {
         return (
-            <AuthLayout pageTitle="Check your email" title="Check your email">
+            <AuthLayout variant="split" pageTitle="Check your email" title="Check your email">
                 <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
                     <MailCheck size={24}/>
                 </div>
@@ -96,6 +96,7 @@ const Signup = () => {
 
     return (
         <AuthLayout
+            variant="split"
             pageTitle="Sign up"
             title="Create your account"
             subtitle="Start tracking your income and expenses today."
@@ -113,30 +114,28 @@ const Signup = () => {
                     <ProfilePhotoSelector image={profilePhoto} setImage={setProfilePhoto}/>
                 </div>
 
-                <div className="grid grid-cols-1 gap-x-4 sm:grid-cols-2">
-                    <Input
-                        value={form.fullName}
-                        onChange={({target}) => handleChange("fullName", target.value)}
-                        label="Full name"
-                        placeholder="John Doe"
-                        type="text"
-                        autoComplete="name"
-                        maxLength={100}
-                        autoFocus={canAutoFocus()}
-                        error={fieldErrors.fullName}
-                    />
+                <Input
+                    value={form.fullName}
+                    onChange={({target}) => handleChange("fullName", target.value)}
+                    label="Full name"
+                    placeholder="John Doe"
+                    type="text"
+                    autoComplete="name"
+                    maxLength={100}
+                    autoFocus={canAutoFocus()}
+                    error={fieldErrors.fullName}
+                />
 
-                    <Input
-                        value={form.email}
-                        onChange={({target}) => handleChange("email", target.value)}
-                        label="Email address"
-                        placeholder="name@example.com"
-                        type="email"
-                        autoComplete="email"
-                        inputMode="email"
-                        error={fieldErrors.email}
-                    />
-                </div>
+                <Input
+                    value={form.email}
+                    onChange={({target}) => handleChange("email", target.value)}
+                    label="Email address"
+                    placeholder="name@example.com"
+                    type="email"
+                    autoComplete="email"
+                    inputMode="email"
+                    error={fieldErrors.email}
+                />
 
                 <Input
                     value={form.password}
