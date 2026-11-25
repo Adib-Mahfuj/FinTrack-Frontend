@@ -1,7 +1,6 @@
 import {useRef, useState} from "react";
 import {Camera, User} from "lucide-react";
-
-const MAX_SIZE_MB = 5;
+import {validateImageFile} from "../util/imageFile.js";
 
 const SIZES = {
     md: "h-24 w-24",
@@ -20,17 +19,9 @@ const AvatarUploader = ({imageUrl, onSelect, onRemove, size = "md", disabled = f
         event.target.value = "";
         if (!file) return;
 
-        if (!file.type.startsWith("image/")) {
-            setError("Please choose an image file.");
-            return;
-        }
-        if (file.size > MAX_SIZE_MB * 1024 * 1024) {
-            setError(`Image must be smaller than ${MAX_SIZE_MB} MB.`);
-            return;
-        }
-
-        setError("");
-        onSelect(file);
+        const message = validateImageFile(file);
+        setError(message);
+        if (!message) onSelect(file);
     };
 
     const handleRemove = () => {

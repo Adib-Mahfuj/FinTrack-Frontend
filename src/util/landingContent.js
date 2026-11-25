@@ -42,7 +42,7 @@ export const FEATURES = [
     },
     {
         icon: ShieldCheck,
-        title: "Private by design",
+        title: "Secure accounts",
         description: "Your account is password-protected, and every user only ever sees their own data.",
     },
 ];

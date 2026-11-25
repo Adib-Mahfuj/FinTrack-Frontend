@@ -8,18 +8,12 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
-/* Gentle floating motion for decorative cards */
-@keyframes float {
-    0%, 100% {
-        transform: translateY(0);
-    }
-    50% {
-        transform: translateY(-10px);
-    }
-}
-
-.animate-float {
-    animation: float 6s ease-in-out infinite;
+/* Charts are not form controls: tapping one must not draw a focus ring or a tap highlight around it */
+.recharts-wrapper,
+.recharts-wrapper *,
+.recharts-surface {
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
 /* Soft entrance for the auth forms */
@@ -45,7 +39,6 @@ body {
         scroll-behavior: auto !important;
     }
 
-    .animate-float,
     .animate-fade-up {
         animation: none;
     }

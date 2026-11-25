@@ -14,6 +14,16 @@ import uploadProfileImage from "../util/uploadProfileImage.js";
 
 const MIN_PASSWORD_LENGTH = 8;
 
+// Shown next to the logo so "Log in" is always visible without scrolling
+const LOGIN_LINK = (
+    <>
+        <span className="hidden sm:inline">Already have an account? </span>
+        <Link to="/login" className="font-medium text-blue-600 transition-colors duration-200 hover:text-blue-700">
+            Log in
+        </Link>
+    </>
+);
+
 // Returns an { field: message } map for the signup form
 const validate = ({fullName, email, password}) => {
     const errors = {};
@@ -76,7 +86,12 @@ const Signup = () => {
     // The account must be activated through the emailed link before the first login
     if (registeredEmail) {
         return (
-            <AuthLayout variant="split" pageTitle="Check your email" title="Check your email">
+            <AuthLayout
+                variant="split"
+                pageTitle="Check your email"
+                title="Check your email"
+                headerAction={LOGIN_LINK}
+            >
                 <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
                     <MailCheck size={24}/>
                 </div>
@@ -100,19 +115,10 @@ const Signup = () => {
             pageTitle="Sign up"
             title="Create your account"
             subtitle="Start tracking your income and expenses today."
-            footer={
-                <>
-                    Already have an account?{" "}
-                    <Link to="/login" className="font-medium text-blue-600 transition-colors duration-200 hover:text-blue-700">
-                        Log in
-                    </Link>
-                </>
-            }
+            headerAction={LOGIN_LINK}
         >
             <form onSubmit={handleSubmit} noValidate>
-                <div className="mb-6">
-                    <ProfilePhotoSelector image={profilePhoto} setImage={setProfilePhoto}/>
-                </div>
+                <ProfilePhotoSelector image={profilePhoto} setImage={setProfilePhoto}/>
 
                 <Input
                     value={form.fullName}
