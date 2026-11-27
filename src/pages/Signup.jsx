@@ -2,27 +2,19 @@ import {useState} from "react";
 import {Link} from "react-router-dom";
 import {MailCheck} from "lucide-react";
 import AuthLayout from "../components/AuthLayout.jsx";
+import AvatarUploader from "../components/AvatarUploader.jsx";
 import Input from "../components/input.jsx";
 import Button from "../components/Button.jsx";
-import ProfilePhotoSelector from "../components/ProfilePhotoSelector.jsx";
+import useObjectUrl from "../hooks/useObjectUrl.js";
 import axiosConfig from "../util/axiosConfig.jsx";
 import {API_ENDPOINTS} from "../util/apiEndpoints.js";
 import {getErrorMessage} from "../util/errorMessage.js";
 import {validateEmail} from "../util/validation.js";
 import {canAutoFocus} from "../util/device.js";
+import {MAX_IMAGE_SIZE_MB} from "../util/imageFile.js";
 import uploadProfileImage from "../util/uploadProfileImage.js";
 
 const MIN_PASSWORD_LENGTH = 8;
-
-// Shown next to the logo so "Log in" is always visible without scrolling
-const LOGIN_LINK = (
-    <>
-        <span className="hidden sm:inline">Already have an account? </span>
-        <Link to="/login" className="font-medium text-blue-600 transition-colors duration-200 hover:text-blue-700">
-            Log in
-        </Link>
-    </>
-);
 
 // Returns an { field: message } map for the signup form
 const validate = ({fullName, email, password}) => {
@@ -45,6 +37,7 @@ const Signup = () => {
     const [formError, setFormError] = useState("");
     const [loading, setLoading] = useState(false);
     const [registeredEmail, setRegisteredEmail] = useState("");
+    const photoPreview = useObjectUrl(profilePhoto);
 
     const handleChange = (key, value) => {
         setForm((prev) => ({...prev, [key]: value}));
@@ -86,12 +79,7 @@ const Signup = () => {
     // The account must be activated through the emailed link before the first login
     if (registeredEmail) {
         return (
-            <AuthLayout
-                variant="split"
-                pageTitle="Check your email"
-                title="Check your email"
-                headerAction={LOGIN_LINK}
-            >
+            <AuthLayout variant="split" pageTitle="Check your email" title="Check your email">
                 <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
                     <MailCheck size={24}/>
                 </div>
@@ -115,10 +103,25 @@ const Signup = () => {
             pageTitle="Sign up"
             title="Create your account"
             subtitle="Start tracking your income and expenses today."
-            headerAction={LOGIN_LINK}
+            footer={
+                <>
+                    Already have an account?{" "}
+                    <Link to="/login" className="font-medium text-blue-600 transition-colors duration-200 hover:text-blue-700">
+                        Log in
+                    </Link>
+                </>
+            }
         >
             <form onSubmit={handleSubmit} noValidate>
-                <ProfilePhotoSelector image={profilePhoto} setImage={setProfilePhoto}/>
+                <div className="mb-4">
+                    <AvatarUploader
+                        imageUrl={photoPreview}
+                        onSelect={setProfilePhoto}
+                        onRemove={() => setProfilePhoto(null)}
+                        size="sm"
+                        hint={`Optional · up to ${MAX_IMAGE_SIZE_MB} MB`}
+                    />
+                </div>
 
                 <Input
                     value={form.fullName}

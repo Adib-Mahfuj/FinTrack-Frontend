@@ -1,13 +1,14 @@
 import {useId, useState} from "react";
 import {Eye, EyeOff} from "lucide-react";
 
+// 16px on phones stops iOS Safari from zooming in on focus; 14px from the sm breakpoint up
 const FIELD_BASE =
-    "w-full rounded-lg border bg-transparent px-3 py-2.5 text-sm text-gray-800 " +
-    "placeholder:text-gray-400 transition-colors duration-200 focus:outline-none focus:ring-2 " +
+    "w-full rounded-lg border bg-white px-3 py-2.5 text-base text-slate-900 shadow-sm shadow-slate-900/5 " +
+    "placeholder:text-slate-400 transition-colors duration-200 focus:outline-none focus:ring-[3px] sm:text-sm " +
     "disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-400";
 
-const FIELD_OK = "border-gray-300 focus:border-blue-500 focus:ring-blue-500/20";
-const FIELD_ERROR = "border-red-400 focus:border-red-500 focus:ring-red-500/20";
+const FIELD_OK = "border-slate-300 hover:border-slate-400 focus:border-blue-500 focus:ring-blue-500/15";
+const FIELD_ERROR = "border-red-400 focus:border-red-500 focus:ring-red-500/15";
 
 const Input = ({
                    label,
@@ -44,7 +45,7 @@ const Input = ({
     return (
         <div className="mb-4">
             {label && (
-                <label htmlFor={fieldId} className="mb-1.5 block text-sm font-medium text-gray-700">
+                <label htmlFor={fieldId} className="mb-1.5 block text-sm font-medium text-slate-700">
                     {label}
                 </label>
             )}
@@ -62,7 +63,7 @@ const Input = ({
                     <>
                         {/* Leading adornment such as a currency code */}
                         {prefix && (
-                            <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-sm font-medium text-gray-500">
+                            <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-base font-medium text-slate-500 sm:text-sm">
                                 {prefix}
                             </span>
                         )}
@@ -80,11 +81,12 @@ const Input = ({
                         type="button"
                         onClick={() => setShowPassword((prev) => !prev)}
                         aria-label={showPassword ? "Hide password" : "Show password"}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer">
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 cursor-pointer rounded-md p-0.5
+                                   focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
                         {showPassword ? (
-                            <Eye size={20} className="text-slate-600 transition-colors hover:text-slate-700"/>
+                            <Eye size={20} className="text-slate-700 transition-colors hover:text-slate-900"/>
                         ) : (
-                            <EyeOff size={20} className="text-slate-400 transition-colors hover:text-slate-500"/>
+                            <EyeOff size={20} className="text-slate-500 transition-colors hover:text-slate-700"/>
                         )}
                     </button>
                 )}
@@ -94,12 +96,12 @@ const Input = ({
                 <p
                     id={messageId}
                     role={error ? "alert" : undefined}
-                    className={`mt-1.5 text-xs ${error ? "text-red-600" : "text-gray-500"}`}>
+                    className={`mt-1.5 text-xs ${error ? "text-red-600" : "text-slate-600"}`}>
                     {message}
                 </p>
             )}
         </div>
-    )
-}
+    );
+};
 
 export default Input;

@@ -3,78 +3,77 @@ import {Link} from "react-router-dom";
 import {assets} from "../assets/assests.js";
 import AuthShowcase from "./AuthShowcase.jsx";
 
-// Soft backdrop of the centered (login) layout
-const BACKDROP = "radial-gradient(60% 40% at 50% 0%, rgba(37,99,235,0.12), transparent 70%)";
-const DOTS = "radial-gradient(#cbd5e1 1px, transparent 1px)";
-const DOTS_FADE = "radial-gradient(ellipse at center, black 30%, transparent 75%)";
+// One soft blue gradient shared by every auth page: almost white at the top left,
+// a clearer sky blue at the bottom right
+const AUTH_BG = {
+    backgroundImage: "linear-gradient(135deg, #f7fbff 0%, #e8f1ff 55%, #dbe9ff 100%)",
+};
 
 const LOGO_LINK =
     "rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500";
 
-// Login: a minimal centered card, nothing but the form
+// Logo sits above the heading on every auth page
+const Logo = () => (
+    <Link to="/" aria-label="FinTrack home" className={`inline-flex ${LOGO_LINK}`}>
+        <img src={assets.logo} alt="FinTrack" className="h-9 w-auto"/>
+    </Link>
+);
+
+const Heading = ({title, subtitle, hideSubtitleWhenShort = false}) => (
+    <div className="text-center">
+        <h1 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-[1.75rem]">{title}</h1>
+        {subtitle && (
+            <p className={`mt-1.5 text-sm text-gray-500 ${hideSubtitleWhenShort ? "hide-when-short" : ""}`}>
+                {subtitle}
+            </p>
+        )}
+    </div>
+);
+
+// Login: logo above a white card that holds only the login form
 const CardLayout = ({title, subtitle, children, footer}) => (
-    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-gray-50 px-5 py-10">
-        <div aria-hidden="true" className="absolute inset-0" style={{backgroundImage: BACKDROP}}/>
-        <div
-            aria-hidden="true"
-            className="absolute inset-0"
-            style={{
-                backgroundImage: DOTS,
-                backgroundSize: "22px 22px",
-                maskImage: DOTS_FADE,
-                WebkitMaskImage: DOTS_FADE,
-                opacity: 0.6,
-            }}
-        />
+    <div className="flex min-h-screen flex-col items-center justify-center px-5 py-10" style={AUTH_BG}>
+        <Logo/>
 
-        <Link to="/" aria-label="FinTrack home" className={`relative ${LOGO_LINK}`}>
-            <img src={assets.logo} alt="FinTrack" className="h-11 w-auto"/>
-        </Link>
-
-        <main className="animate-fade-up relative mt-8 w-full max-w-[420px] rounded-2xl border border-gray-200 bg-white p-6 shadow-xl shadow-blue-950/5 sm:p-8">
-            <h1 className="text-2xl font-semibold tracking-tight text-gray-900">{title}</h1>
-            {subtitle && <p className="mt-2 text-sm text-gray-500">{subtitle}</p>}
-
-            <div className="mt-8">{children}</div>
+        <main className="animate-fade-up mt-6 w-full max-w-[440px] rounded-2xl border border-gray-200 bg-white p-6 shadow-xl shadow-blue-950/5 sm:p-8">
+            <Heading title={title} subtitle={subtitle}/>
+            <div className="mt-7">{children}</div>
 
             {footer && (
                 <p className="mt-6 border-t border-gray-100 pt-5 text-center text-sm text-gray-600">{footer}</p>
             )}
         </main>
-
-        <p className="relative mt-6 text-xs text-gray-500">© {new Date().getFullYear()} FinTrack</p>
     </div>
 );
 
-// Signup: form on the left (about 42%), product showcase on the right (about 58%).
-// `headerAction` sits next to the logo so the alternative route is always in view.
-const SplitLayout = ({title, subtitle, children, footer, headerAction}) => (
-    <div className="grid min-h-screen bg-white lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
-        <div className="flex min-h-screen flex-col px-5 py-6 sm:px-10 lg:px-14">
-            <div className="flex items-center justify-between gap-4">
-                <Link to="/" aria-label="FinTrack home" className={LOGO_LINK}>
-                    <img src={assets.logo} alt="FinTrack" className="h-10 w-auto"/>
-                </Link>
+// Signup: form on the left, product details on the right, one continuous background.
+// On desktop it fills exactly one screen, so the page itself never scrolls.
+const SplitLayout = ({title, subtitle, children, footer}) => (
+    <div className="min-h-screen overflow-hidden lg:h-screen" style={AUTH_BG}>
+        <div className="grid min-h-screen lg:h-full lg:min-h-0 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+            {/* Auto margins centre the form; the column only scrolls as a safety net (e.g. many error messages) */}
+            <div className="flex min-h-screen flex-col overflow-y-auto px-5 py-8 sm:px-10 lg:h-full lg:min-h-0 lg:px-14 lg:py-6">
+                <main className="animate-fade-up m-auto w-full max-w-[400px]">
+                    <div className="flex justify-center">
+                        <Logo/>
+                    </div>
 
-                {headerAction && <p className="text-sm text-gray-600">{headerAction}</p>}
+                    <div className="mt-4">
+                        <Heading title={title} subtitle={subtitle} hideSubtitleWhenShort/>
+                    </div>
+
+                    <div className="mt-5">{children}</div>
+
+                    {footer && <p className="mt-4 text-center text-sm text-gray-600">{footer}</p>}
+                </main>
             </div>
 
-            <main className="animate-fade-up mx-auto flex w-full max-w-[420px] flex-1 flex-col justify-center py-6">
-                <h1 className="text-2xl font-semibold tracking-tight text-gray-900">{title}</h1>
-                {subtitle && <p className="mt-2 text-sm text-gray-500">{subtitle}</p>}
-
-                <div className="mt-6">{children}</div>
-
-                {footer && <p className="mt-6 text-center text-sm text-gray-600">{footer}</p>}
-            </main>
+            <AuthShowcase className="lg:h-full"/>
         </div>
-
-        {/* Stays in view while a long form scrolls */}
-        <AuthShowcase className="lg:sticky lg:top-0 lg:h-screen"/>
     </div>
 );
 
-// Shared shell of the auth pages: variant "card" (default) or "split"
+// Variant "card" (login, default) or "split" (signup)
 const AuthLayout = ({variant = "card", pageTitle, ...layoutProps}) => {
     useEffect(() => {
         document.title = `${pageTitle} · FinTrack`;
