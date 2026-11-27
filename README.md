@@ -54,7 +54,7 @@ The interface follows a clean, consistent SaaS dashboard style: a white surface,
 
 ## Screenshots
 
-| Home | Sign Up |
+| Landing Page | Sign Up |
 | :---: | :---: |
 | ![Filter](docs/screenshots/home.png) | ![Login](docs/screenshots/signup.png) |
 
