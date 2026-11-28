@@ -211,10 +211,14 @@ const PasswordCard = () => {
 
         setSaving(true);
         try {
-            await axiosConfig.put(API_ENDPOINTS.CHANGE_PASSWORD, {
+            const response = await axiosConfig.put(API_ENDPOINTS.CHANGE_PASSWORD, {
                 currentPassword: form.currentPassword,
                 newPassword: form.newPassword,
             });
+
+            // The old token stops working after a password change; the new one keeps this session signed in
+            const newToken = response.data?.token;
+            if (newToken) localStorage.setItem("token", newToken);
 
             setForm(EMPTY_PASSWORD_FORM);
             toast.success("Password updated successfully");
