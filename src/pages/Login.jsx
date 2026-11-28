@@ -101,6 +101,16 @@ const Login = () => {
                     error={fieldErrors.password}
                 />
 
+                <div className="-mt-2 mb-4 flex justify-end">
+                    <Link
+                        to="/forgot-password"
+                        className="rounded text-sm font-medium text-blue-600 transition-colors duration-200 hover:text-blue-700
+                                   focus:outline-none focus-visible:underline"
+                    >
+                        Forgot password?
+                    </Link>
+                </div>
+
                 {formError && (
                     <p role="alert" className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
                         {formError}

@@ -14,6 +14,8 @@ const CLOUDINARY_CLOUD_NAME = "dzz52jay7";
 export const API_ENDPOINTS = {
     LOGIN: "login",
     REGISTER: "register",
+    FORGOT_PASSWORD: "/forgot-password",
+    RESET_PASSWORD: "/reset-password",
     GET_USER_INFO: "/profile",
     UPDATE_PROFILE: "/profile",
     CHANGE_PASSWORD: "/profile/password",

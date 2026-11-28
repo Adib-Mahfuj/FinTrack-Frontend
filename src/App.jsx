@@ -14,6 +14,8 @@ const Filter = lazy(() => import("./pages/Filter.jsx"));
 const Profile = lazy(() => import("./pages/Profile.jsx"));
 const Login = lazy(() => import("./pages/Login.jsx"));
 const Signup = lazy(() => import("./pages/Signup.jsx"));
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword.jsx"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword.jsx"));
 
 const PageLoader = () => (
     <div className="flex min-h-screen items-center justify-center" role="status" aria-label="Loading">
@@ -70,6 +72,8 @@ const App = () => {
                             <Route path="/profile" element={<Profile/>}/>
                             <Route path="/login" element={<Login/>}/>
                             <Route path="/signup" element={<Signup/>}/>
+                            <Route path="/forgot-password" element={<ForgotPassword/>}/>
+                            <Route path="/reset-password" element={<ResetPassword/>}/>
                             {/* Unknown URLs go back to the root redirect */}
                             <Route path="*" element={<Navigate to="/" replace/>}/>
                         </Routes>
